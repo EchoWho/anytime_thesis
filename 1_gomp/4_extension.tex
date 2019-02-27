@@ -1,0 +1,66 @@
+%\section{Appendix B: Generalized Linear Model with Multi-Dimensional Response}
+\section{Extension to Generalized Linear Model}
+\label{sec:extension}
+While we only formulated the feature group sequencing problem in linear prediction setting previously, we can extend our algorithm for generalized linear models\cite{glm} and multi-dimensional responses. In general, we assume that we have $P$ dimensional responses, and predictions are of the form $E[y | x ] = \nabla \phi( W x)$, for some known convex function $\phi : \mathbb{R}^P \rightarrow \mathbb{R}$, and an unknown coefficient $P\times D$ matrix, $W$. Thus, the generalized linear
+prediction problem is to minimize over coefficient matrix $W: P\times D$:
+\begin{align}
+	\textbf{r}(W) = \frac{1}{n} \sum _{i=1}^n (\phi(Wx^i) - {y^i}^TWx^i) 
+		+ \frac{\lambda}{2} \Vert W\Vert^2_F,
+		\label{eq:glm_loss}
+\end{align}
+where $\lambda$ is the regularization constant for Frobenius norm of the coefficient 
+matrix. In particular, we have $\phi(x) = \frac{1}{2}x^2$ for linear prediction. 
+The risk of a collection of features, $S$, is then 
+\mbox{$R(S) = \underset{W : \forall g \notin S  W_g = \textbf{0} }{\min} \textbf{r}(W)$}. 
+To extend CS-G-OMP to feature sequencing in this general setting, we again, at each step,
+take gradient of the objective $\textbf{r}$ w.r.t. $W$, and choose the feature group that has the largest ratio of group gradient Frobenius norm square to group cost. More specifically, after choosing groups in $G$, we have a best coefficient matrix restricted to G, $W(G)$. Then we compute the gradient w.r.t. $W$ at $W(G)$ (we keep the convention that unselected groups have zero coefficients) as:
+\begin{align}
+	\nabla \textbf{r}(W) = \frac{1}{n} \sum _{i=1}^n (\nabla \phi(Wx^i) - y^i){x^i}^T + \lambda W;
+	\label{eq:glm_gradient}
+\end{align}
+we then evaluate $\Vert \textbf{r}(W)_g \Vert_F^2 / c(g)$ for each feature group $g$, and add the maximizer to the selected groups to create new models. 
+Algorithm~\ref{algo:gomp_glm} demonstrates the procedure. 
+
+Our theoretical result Theorem~\ref{thm:main} can also be proven in this general setting. 
+Proofs of Lemma \ref{lemma:smoothness} and \ref{lemma:convexity}) in appendix are readily for generalized linear models\footnote{Inner products, $\angleb{\bullet, \bullet}$, in Lemma \ref{lemma:smoothness} and \ref{lemma:convexity} now represent Frobenius products, which are sums of element-wise products of matrices.}. Given these two lemmas, our proofs of Lemma~\ref{lemma:main}
+and Theorem~\ref{thm:main} hold as they are. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Algorithm statement %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%\IncMargin{1em}
+%\begin{algorithm}[h]
+%  \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+%
+%  \Input{The data matrix $\XX = [ \textbf{f}_1, ..., \textbf{f}_D ] \in \R^{n \times D}$,
+%    with group structures, such that for each group $g$,
+%    $\XX^T_{g}\XX_{g} = I _{D_g}$.     
+%    The cost $c(g)$ of each group $g$. 
+%    The response matrix $\YY \in \{0, 1\}^{n \times P}$.
+%    The link function $\nabla \Phi$.
+%    Regularization constant $\lambda$.
+%  }
+%  \Output{
+%    A sequence $((G_j, W_j))_j$, where 
+%      $G_j = (g_1, g_2, ..., g_j)$ 
+%    is the sequence of first $j$ selected feature groups, $g_1, g_2, ..., g_j$, and 
+%      $W_j: P\times D$ restricted to features in $G_j$ 
+%      is the associated coefficient matrix.
+%  }
+%
+%  $G_0 = \emptyset$; $W_0 = \textbf{0}$\;
+%  \For{$j = 1, 2, ...$}{
+%    Compute $\textbf{r}' = \nabla \textbf{r}(W_{j-1})$ with Eq.~\ref{eq:glm_gradient}\;
+%    \tcp{Selection step (*)} 
+%    $g_j = \arg \max _g \Vert \textbf{r}'_g \Vert_F^2 / c(g)$\;
+%    \tcp{Append selected group}
+%    $G_j = G_{j-1} \oplus (g_j)$\;
+%    \tcp{Solve for the best model with selected feature}
+%    Use a GLM algorithm to minimize Eq.~\ref{eq:glm_loss} restricted to 
+%    features in $G_j$\\ 
+%    \Indp $W_{j} = \underset{W : \forall g \notin G_j W_g = \textbf{0} }{\arg \min} R(W) $\;
+%  }
+%  \caption{Cost Sensitive Group Orthogonal Matching Pursuit (G-OMP) for Generalized Linear Models}
+%  \label{algo:gomp_glm}
+%\end{algorithm}

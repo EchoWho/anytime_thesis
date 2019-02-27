@@ -1,0 +1,143 @@
+
+
+\subsection{Group Orthogonal Matching Pursuit for Generalized Linear Model}
+
+\subsection{Generalized Linear Model}
+Given data $\{(x_i, y_i)\}$, where $x_i \in \R^{D}$ and 
+its reponse $y_i \in \R^{P}$, 
+a generalized linear model(GLM) satisfies
+$E[y | x] = \nabla\Phi(Wx) := g^{-1}(Wx)$, 
+where $W \in \R^{P \times D}$ is the coefficient matrix, and $\Phi : \R^{P} \rightarrow \R$
+is a proper and convex lower semi-continuous function of $P$ variables.
+As defined in \cite{least_square_revisited}, the \textit{Calibrated multi-class loss} 
+of the stated GLM is 
+$ \ell(W ; (x, y)) = \Phi(Wx) - y^T Wx$. We define 
+$(\delta_1(x), \delta_2(x), ..., \delta_p(x)) 
+\triangleq  Wx$. 
+
+\subsection{Feature Group selection in GLM}
+Let $\mathcal{F}$ be the set of all feature groups, then 
+given a sequence of chosen features $S \subseteq \mathcal{F}$,
+we define the minimization objective $R$ as the 
+minimum empirical Calibrated multi-class loss
+with regularization, using only features in $S$:
+\begin{align}
+  R(S) = \min _{W \in \mathbb{R}^{p \times |S|}} 
+    \frac{1}{n} \sum _{i=1}^n (\Phi(Wx_{i,S}) - y^TWx_{i,S}) 
+    + \frac{\lambda}{2} \Vert W \Vert _F^2.
+  \label{min_orig}
+\end{align}
+\cite{least_square_revisited} provides multiple algorithms to solve $R(S)$ 
+without the regularization term, and they 
+can be easily extended to handle the regularization. 
+Given the cost $c(g)$ of each feature group $g$, 
+and a feature cost budget $B$, 
+we define the problem of feature selection with feature cost constraint as
+\begin{align}
+  \min _{S \subseteq F} R(S) \text{ subject to } \sum _{ g \in S } c(g) \leq B.
+\end{align}
+Algorithm \ref{gomp_glm} describes our greedy algorithm, an extension of 
+Group Orthogonal Matching Pursuit (G-OMP), to approximate the feature selection problem above.
+More specifically, Algorithm \ref{gomp_glm} greedily selects the feature group of the best benefit to cost ratio at 
+each step, where the benefit is determined by the sum of squares of inner-products between 
+features in the group
+and the gradient of the objective function with respect to $(\delta_1(x), \delta_2(x), ... , \delta_p(x))$. 
+To Theoretically bound the performance of Algorithm \ref{gomp_glm}, we study the maximization 
+objective, which is defined as 
+\begin{equation}
+  F(S) = R(\emptyset) - R(S).
+\end{equation}
+Note that for $S \neq \emptyset$, we have $R(\emptyset) \geq R(S)$ by definition of \ref{min_orig}.
+In addition, by convex and semi-continuous assumption on $\Phi$, we have $F$ to be concave and semi-continuous.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Algorithm statement %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\IncMargin{1em}
+\begin{algorithm}
+  \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+
+  \Input{The data matrix $\XX = [ \textbf{f}_1, ..., \textbf{f}_D ] \in \R^{n \times D}$,
+    with group structures, such that for each group $g$,
+    $\XX^T_{g}\XX_{g} = I _{D_g}$.     
+    The cost $c(g)$ of each group $g$. 
+    The response of all samples $\YY \in \{0, 1\}^{n}$.
+    Regularization constant $\lambda$.
+  }
+  \Output{
+    A sequence $((G_j, w_j))_j$, where 
+      $G_j = (g_1, g_2, ..., g_j)$ 
+    is the sequence of first $j$ selected feature groups, $g_1, g_2, ..., g_j$, and 
+      $w_j \in \R^{(D_{g_1} + D_{g_2} + ... + D_{g_j})}$ 
+    is the coefficient of the best linear regressor using features in $G_j$.
+  }
+
+  $G_0 = \emptyset$; $w_0 = \textbf{0}$\;
+  Define $(x_{i,G}, y_i)$ as the $i^{th}$ data sample 
+    restricted to feature selected in $G$, for all $i$\;
+  \For{$j = 1, 2, ...$}{
+    \tcp{Selection step (*)} 
+    $g_j = \arg \max _g  \Vert X_g^T (Y - X_{G_{j-1}}w_{j-1}) - \mathbb{1}(g \in G_{j-1}) \lambda (w_{j-1})_g \Vert _2^2  / c(g)$\;
+    %\If {$g_j == g_t$ for some $t < j$} {
+    %  Terminate\;
+    %}
+    \tcp{Append selected group}
+    $G_j = G_{j-1} \oplus (g_j)$\;
+    \tcp{Solve for $w_j$}
+    $w_j = (X^T_{G_j}X_{G_j} + \lambda I)^{-1}X_{G_j}^TY$\;
+  }
+  \caption{Cost Sensitive Group Orthogonal Matching Pursuit (G-OMP) for Generalized Linear Model}
+  \label{gomp_lm}
+\end{algorithm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Algorithm statement %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\IncMargin{1em}
+\begin{algorithm}
+  \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+
+  \Input{The data matrix $\XX = [ \textbf{f}_1, ..., \textbf{f}_D ] \in \R^{n \times D}$,
+    with group structures, such that for each group $g$,
+    $\XX^T_{g}\XX_{g} = I _{D_g}$.     
+    The cost $c(g)$ of each group $g$. 
+    The response matrix $\YY \in \{0, 1\}^{n \times P}$.
+    The link function $\nabla \Phi$.
+    Regularization constant $\lambda$.
+  }
+  \Output{
+    A sequence $((G_j, W_j))_j$, where 
+      $G_j = (g_1, g_2, ..., g_j)$ 
+    is the sequence of first $j$ selected feature groups, $g_1, g_2, ..., g_j$, and 
+      $W_j \in \R^{P \times (D_{g_1} + D_{g_2} + ... + D_{g_j})}$ 
+    is its associated coefficient matrices for each feature group.
+  }
+
+  $G_0 = \emptyset$; $W_0 = \textbf{0}$\;
+  Define $(x_{i,G}, y_i)$ as the $i^{th}$ data sample 
+    restricted to feature selected in $G$, for all $i$\;
+  \For{$j = 1, 2, ...$}{
+    $\text{Define }\textbf{r}: \R^{P} \rightarrow \R^{P}$ \text{ such that for $x\in \R^{P}$} \\
+        $\textbf{r}(x) = \sum _{i=1}^n \frac{1}{n} (\nabla\Phi(W_{j-1} x_{i,G_{j-1}}) - y_i) \mathbb{1}(x = x_i) + \lambda \sum _{d \in G_{j-1}} W_{j-1}e_d \mathbb{1}(x = e_d)$\;
+    \tcp{Selection step (*)} 
+    $g_j = \arg \max _g 
+      (\sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2) / c(g)$\;
+    %\If {$g_j == g_t$ for some $t < j$} {
+    %  Terminate\;
+    %}
+    \tcp{Append selected group}
+    $G_j = G_{j-1} \oplus (g_j)$\;
+    \tcp{Solve for the best model with selected feature}
+    Use a GLM algorithm to solve: \\ 
+    \Indp $W_{j} = 
+      \arg \min _W \frac{1}{n} 
+        \sum _{i=1}^n (\Phi(Wx_{i,G_j}) - y_i^TWx_{i,G_j}) 
+        + \frac{\lambda}{2} \Vert W \Vert ^2_F  $\;
+  }
+  \caption{Cost Sensitive Group Orthogonal Matching Pursuit (G-OMP) for Generalized Linear Model}
+  \label{gomp_glm}
+\end{algorithm}
+
+
+

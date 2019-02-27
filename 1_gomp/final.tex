@@ -1,0 +1,140 @@
+%
+%\documentclass[]{article}
+%
+%% Set the typeface to Times Roman
+%\usepackage{times}
+%
+%\usepackage{../styles/uai20162e}
+%\usepackage{hyperref}
+%\usepackage{url}
+%
+%\usepackage{natbib}
+%\usepackage{epsfig}
+%\usepackage{graphicx}
+%\usepackage{amsmath}
+%\usepackage{amssymb}
+%\usepackage{amsthm}
+%\usepackage{bbold}
+%\usepackage{flushend}
+%\usepackage{subfig}
+%\usepackage{array}
+%\usepackage{comment}
+%\usepackage{subfig}
+%
+%\usepackage[final]{pdfpages}
+%
+%\usepackage{enumitem}
+%
+%\usepackage[ruled,vlined,linesnumbered,resetcount]{algorithm2e}
+%
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{lemma}[theorem]{Lemma}
+%
+%\theoremstyle{definition}
+%\newtheorem{definition}[theorem]{Definition}
+%\newtheorem{example}[theorem]{Example}
+%\newtheorem{xca}[theorem]{Exercise}
+%
+%\theoremstyle{remark}
+%\newtheorem{remark}[theorem]{Remark}
+%
+%\newcommand{\E}{\mathbb{E}}
+%\newcommand{\R}{\mathbb{R}}
+%\newcommand{\angleb}[1]{\langle #1 \rangle}
+%
+%\newcommand{\at}[1]{\langle #1 \rangle}
+%\newcommand{\XX}{\textbf{X}}
+%\newcommand{\YY}{\textbf{Y}}
+%
+%\setcounter{secnumdepth}{5}
+%
+%
+%\newcommand{\fix}{\marginpar{FIX}}
+%\newcommand{\new}{\marginpar{NEW}}
+%\newcommand{\YahooDataset}{Yahoo! Learning to Rank Challenge dataset}
+%\newcommand{\YahooLTR}{\textsc{Yahoo!\,LTR}}
+%\newcommand{\GrainDataset}{Agricultural dataset}
+%\newcommand{\Grain}{\textsc{Agricultural}}
+%
+%\DeclareMathOperator*{\argmax}{argmax} 
+%
+%\allowdisplaybreaks
+%
+%%\nipsfinalcopy % Uncomment for camera-ready version
+%%\runningauthor{Surname 1, Surname 2, Surname 3, ...., Surname n}
+%
+%
+%
+%\title{Efficient Feature Group Sequencing for 
+%Anytime Linear Prediction}
+%
+%%\aistatsauthor{ Hanzhang Hu \And Alexander Grubb \And J. Andrew Bagnell \And Martial Hebert}
+%
+%%\aistatsaddress{hanzhang@andrew.cmu.edu \And agrubb@cmu.edu \And dbagnell@ri.cmu.edu \And hebert@ri.cmu.edu } 
+%
+%\author{ {\bf Hanzhang Hu} \\
+%hanzhang@cs.cmu.edu \\
+%\And
+%{\bf Alexander Grubb}  \\
+%agrubb@cs.cmu.edu \\
+%\And
+%{\bf J. Andrew Bagnell}   \\
+%dbagnell@ri.cmu.edu \\
+%\And
+%{\bf Martial Hebert} \\
+%hebert@ri.cmu.edu
+%}
+%
+%\begin{document}
+%
+%\maketitle
+%
+
+%\input{\GOMPDIR/0_abstract}
+
+\input{\GOMPDIR/1_introduction.tex}
+
+% Define the problem of feature group sequencing for linear prediction anytime
+% - mathematical form; 
+% - anytime;
+% - mathematical guarantee target; (what we have in theorem)
+% - meaning; - example; 
+
+
+% background 
+% - relation to feature selection; (different assumption)
+% - relation to submodular maximization; (different/stronger bound; bound specific to group feature of varied cost) 
+
+
+% Define contribution: 
+% - anytime prediction (linear predictors, sequence the features) 
+% - theoretic guarantee (stronger), specific to group setting
+% - extension to generalized linear model. 
+% - 
+
+\input{\GOMPDIR/2_method.tex}
+
+% Algorithm description. 
+
+\input{\GOMPDIR/3_proof.tex}
+
+% terms, assumption, lemma
+% Proof of the main lemma;
+
+\input{\GOMPDIR/5_experiment.tex}
+
+
+\let\thefootnote\relax\footnote{
+This work was conducted in part through collaborative participation in the Robotics Consortium sponsored by the U.S Army Research Laboratory under the Collaborative Technology Alliance Program, Cooperative Agreement W911NF-10-2-0016.}
+
+
+\bibliographystyle{plainnat}
+\bibliography{final}
+%\newpage
+\clearpage
+\appendix
+\input{\GOMPDIR/3_proof_II.tex}
+%\input{4_extension.tex}
+%\input{7_extra_exp.tex}
+
+%\end{document}

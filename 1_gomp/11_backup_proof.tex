@@ -1,0 +1,912 @@
+\section{Theoretical Analysis}
+\label{sec:proof}
+
+\subsection{Notation}
+Let $X$ be the feature matrix of dimension $n \times d$. 
+Each feature group is whitened within the group, i.e. $X_g^TX_g = I$ for each feature group $g$. 
+The cost of a feature group $g$ is $c(g)$. 
+Let $S = (s_i)_i$ be a sequence of feature groups
+and $S_j = (s_1, ..., s_j)$ be the first $j$ number of groups in $S$.  
+Let $S_{\angleb{K}}$ for $K \in \mathbb{R}$ be a sequence of feature groups whose total cost is no greater than $K$. 
+Let $G = (g_i)_i$ be the sequence of feature groups selected by greedy algorithm. 
+Let $G_{\angleb{B}}$ for $B \in \mathbb{R}$ be $G$ that stops right before the total costs exceeds $B$. 
+Let $C$ be the regularized covariance matrix of features, such that
+  \begin{equation}
+    C_{ij} = \frac{1}{n} X_i^TX_j + \lambda I(i=j).
+  \end{equation}
+We denote the minimum eigenvalue of $C$ as $\lambda_{min}(C)$. 
+We also define for each feature dimension $f$, and response dimension $p$, 
+\begin{equation}
+ b_{f,p}^S \triangleq \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(W_Sx_i) - y_{i,p})x_{i,f}
+    + \lambda (W_S)_{p, f}. 
+\end{equation}
+
+\subsection{Main Result}
+%%%%%%%%%%%%%
+%%%%%%  Theorem.
+We now state our main theoretical result, which bounds $F(G_{\angleb{B}})$ with a constant factor of 
+$F(S_{\angleb{K}})$ for all sequence $S$. The constant factor relates to the features, the budget $B$, 
+the cost of competing sequence $K$, and the regularization constant $\lambda$. 
+\begin{theorem}
+Fix some $L > 0$. Let $B = \sum _{i=1}^L c(g_i)$. 
+If the minimization objective $\mathcal{R}$ 
+ with regularization $\lambda$
+is a $M$-strongly convex and $m$-strongly smooth
+ functional of the predictor, then there exists 
+  $\gamma = \frac{m\lambda _{min}(C)}{M(1+\lambda)}$, such that
+for all sequence $S$ and total cost $K$, 
+\begin{align}
+  F(G_{\angleb{B}}) > (1 - e^{-\gamma\frac{B}{K}})F(S_{\angleb{K}})
+\end{align}
+\label{thm:main}
+\end{theorem}
+
+Theorem \ref{thm:main} is derived from standard result of approximately-submodular problems, and
+its main challenge is in proving that feature group selection with costs for a generalized linear model is 
+approximately-submodular. We show this approxmately-submodular property in the case that the response 
+dimension $P = 1$, using \ref{lemma:smoothness} and \ref{lemma:convexity}, based
+the strong smoothness and strong convexity of the objective function $F$. We then extend the proofs to 
+multi-dimension responses with $P > 1$. 
+Here we first state the lemmas and 
+defer the detail of the proofs. 
+
+%%%%%%%%%%%%% 
+%%%%%%%   Lemma 3.1 Strong smoothness
+\begin{lemma}
+  Let $\mathcal{R}$ be an m-strongly smooth objective. Let $S$ and $G$ be some fixe sequences. Then
+  \begin{align}
+    F(S) - F(G) \leq \frac{1}{2m} b^G_{G \oplus S} C_{G \oplus S}^{-1} b^G_{G\oplus S}
+  \end{align}
+  \label{lemma:smoothness}
+\end{lemma}
+
+%%%%%%%%%%%%% 
+%%%%%  Lemma 3.2 Strong convexity
+\begin{lemma}
+  Let $\mathcal{R}$ be a M-stronly convex objective. Then
+    \begin{align}
+      F(G_j) - F(G_{j-1}) \geq \frac{1}{2M (1 + \lambda) } {b^{G_{j-1}}_{g_j}}^Tb^{G_{j-1}}_{g_j}
+    \end{align}
+  \label{lemma:convexity}
+\end{lemma}
+
+
+%%%%%%%%%%%%%
+%%%%%%%% Lemma 3.3 
+\begin{lemma}
+  There exists $\gamma = \frac{m}{M}\frac{\lambda_{\min}(C)}{(1 +\lambda)} > 0$ such that for all $S$ and total cost $K$,  
+  \begin{align}
+    F(S_{\angleb{K}}) - F(G_{j-1}) \leq \frac{K}{\gamma}
+      \lbrack \frac{F(G_j) - F(G_{j-1})}{c(g_j)} \rbrack
+  \end{align}
+  \label{lemma:main}
+\end{lemma}
+
+To prove the above lemmas, we treat feature selection as selecting weak learners for boosting. We explain this 
+interpretation in detail in the next section. 
+
+
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where $W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where $W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of 
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where 
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where $W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.$W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = Wx$, where $W$ is the minimizer in \ref{min_orig}. 
+We can then rewrite the minimization objective \ref{min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} 
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where $W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.\sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textb
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where $W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.f{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.
+
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where $W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$.
+%Then at the key feature selection step of 
+%Algorithm \ref{gomp_glm} marked by (*), we choose
+%the feature group that simulates the functional
+%gradient the best, with respect to the maximizing the norm of projection from
+%the feature functions to the steepest gradient.
+
+
+
+\subsection{Proof of Main Theorem and Lemmas}
+The main theorem, given the approximately-submodularity of the task, is standard in the 
+submodular theory. 
+\begin{proof}
+  Define $\Delta _j = F(S_{\angleb{K}}) - F(G_{j-1})$. Then we have 
+  $\Delta _j - \Delta_{j+1} = F(G_{j}) - F(G_{j-1})$. By Lemma ~\ref{lemma:main}, we have:
+  \begin{align*}
+    \Delta_j = F(S_{\angleb{K}}) - F(G_{j-1}) \leq \frac{K}{\gamma}
+      \lbrack \frac{F(G_{j}) - F(G_{j-1})}{c(g_{j})} \rbrack 
+        = \frac{K}{\gamma} \lbrack \frac{\Delta_j - \Delta_{j+1}}{c(g_j)} \rbrack
+  \end{align*}
+  Rearranging we get 
+    $\Delta_{j+1} \leq \Delta_j ( 1 - \frac{\gamma c(g_j)}{K} )$. Unroll we get:
+  \begin{align*}
+    \Delta _{L+1} 
+    \leq 
+      \Delta _1 \prod _{j=1}^L (1 - \frac{\gamma c(g_j)}{K})
+    \leq \Delta _1 ( \frac{1}{L} \sum _{j=1}^L (1- \frac{\gamma c(g_j)}{K})) ^L
+    = \Delta _1 (1 - \frac{B\gamma}{L K})^L < \Delta_1 e^{- \gamma \frac{B}{K}}
+  \end{align*}
+  By definition of $\Delta_1$ and $\Delta_{L+1}$, we have:
+  \begin{align*}
+    F(S_{\angleb{K}}) - F(G_{\angleb{B}}) < F(S_{\angleb{K}}) e^{- \gamma \frac{B}{K}}
+  \end{align*}
+  The theorem follows.
+\end{proof}
+
+Proof of Lemma \ref{lemma:smoothness}:
+\begin{proof}
+First we optimize over the weights in $S$. 
+  \begin{align*}
+    F(S) - F(G) &= \mathcal{R}[f_G] - \mathcal{R}[f_S]  \\
+     &= \mathcal{R}[f_G] - \mathcal{R}[\sum _{s \in S} \alpha_s^T h_s] \\
+    &\leq \mathcal{R}[f_G] - \min _{w : w_i^T \in \R^{d_{s_i}}, s_i \in S} 
+        \mathcal{R}[ \sum _{s_i \in S} w_{s_i}^T h_{s_i}] \\
+\intertext{Adding dimensions in $G$ will not increase the risk, we have: }
+    &\leq \mathcal{R}[f_G] - \min _{w : w_i \in \R^{d_{s_i}}, s_i \in G \oplus S}
+        \mathcal{R}[ \sum _{s_i \in G \oplus S} w_{s_i} h_{s_i}] \\
+\intertext{Since $f_G = \sum _{g_i \in G} \alpha_i h_{g_i}$, we have:}
+    &\leq \mathcal{R}[f_G] - \min _{w} 
+      \mathcal{R}[f_G + \sum _{s_i \in G \oplus S} w_i^T h_{s_i}] \\
+\intertext{Expanding using strong smoothness around $f_G$, we have:}
+    &\leq \mathcal{R}[f_G] - \min _{w} (
+      \mathcal{R}[f_G] + \angleb{ \nabla \mathcal{R}[f_G], 
+        \sum _{s_i \in G\oplus S} w_i^T h_{s_i} } 
+        + \frac{m}{2} \Vert \sum _{s_i \in G \oplus S} w_i^T h_{s_i} \Vert ^2) \\
+    &= \max_{w} - 
+      \angleb{ \nabla \mathcal{R}[f_G], 
+      \sum _{s_i \in G\oplus S} w_i^T h_{s_i} } 
+        - \frac{m}{2} \Vert \sum _{s_i \in G \oplus S} w_i^T h_{s_i} \Vert ^2 \\
+    &= \max_w { b^{G}_{G\oplus S} }^T w - \frac{m}{2} w^T C_{G\oplus S} w
+ \end{align*}
+Solving $w$ directly we have:
+\begin{align*}
+  F(S) - F(G) \leq \frac{1}{2m} { b^{G}_{G\oplus S} }^T C_{G\oplus S}^{-1} b^{G}_{G\oplus S}
+\end{align*}
+\end{proof}
+
+Proof of Lemma \ref{lemma:convexity}:
+\begin{proof}
+After the greedy algorithm chooses some group $g_j$ at step $j$, 
+  we form $f_{G_j} = \sum _{\alpha _i} \alpha_i^T h_{g_i}$, such that
+   \[
+    \mathcal{R}[f_G] = \min _{ \alpha _i \in \R^{d_{g_i}}} 
+      \mathcal{R}[ \sum _{g_i \in G_j} \alpha_i^T h_{g_i}] \leq
+      \min _{\beta \in \R^{d_{g_j}}} 
+    \mathcal{R}[f_{G_{j-1}} + \beta h_{g_j}]
+   \]
+ Setting $\beta = \arg \min _{\beta \in \R^{d_{g_j}}} 
+    \mathcal{R}[f_{G_{j-1}} + \beta h_{g_j}]$, using the strongly convex condition at
+      $f_{G_{j-1}}$, we have:
+ \begin{align*}
+    & F(G_j) - F(G_{j-1}) \\
+    &=  \mathcal{R}[f_{G_{j-1}}] - \mathcal{R}[f_{G_j}] \\
+    &\geq \mathcal{R}[f_{G_{j-1}}] - \mathcal{R}[f_{G_{j-1}} + \beta h_{g_j}] \\ 
+    &\geq  \mathcal{R}[f_{G_{j-1}}] - 
+      (\mathcal{R}[f_{G_{j-1}}] + 
+        \angleb{ \nabla \mathcal{R}[f_{G_{j-1}}] , 
+        \beta h_{g_j} }
+       + \frac{M}{2} \Vert \beta h_{g_j} \Vert ^2) \\
+    &=  -  \angleb{ \nabla \mathcal{R}[f_{G_{j-1}}] , 
+        \beta h_{g_j} }
+       - \frac{M}{2} \Vert \beta h_{g_j} \Vert ^2 \\
+    &=  {b^{{G_{j-1}}}_{g_j}} ^T \beta - \frac{M}{2} \beta^T C_{g_j} \beta \\
+    &\geq  \frac{1}{2M} { b^{{G_{j-1}}}_{g_j} } ^T C_{g_j}^{-1} b^{{G_{j-1}}}_{g_j} \\
+    &=  \frac{1}{2M (1+\lambda)} {b^{{G_{j-1}}}_{g_j}}^Tb^{{G_{j-1}}}_{g_j}
+ \end{align*}
+ The last equality holds
+\subsection{Boosting View of Feature Selection}
+We can view a feature selection as a boosting problem as the following. 
+For each single feature $f$, let $h_f : \R^D \rightarrow \R$ be the function that for 
+an input $x$ outputs its $f^{th}$ feature, $x_f$. 
+For a chosen set $S$ of features we 
+define $f_S: \R^D \rightarrow \R^P$ be such that 
+$f_S(x) = W(S)x$, where $W$ is the minimizer in \ref{eq:min_orig}. 
+We can then rewrite the minimization objective \ref{eq:min_orig}
+can be rewritten as a functional:
+\begin{align}
+  R[f_S] = \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y^Tf_S(x_i)) 
+    + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2,
+  \label{min_func}
+\end{align}
+where $e_d$ is the $d^{th}$ dimensional unit vector.
+Given two functions $f, h : \R^D \rightarrow \R$, we define their inner product 
+on the training data with regularization as 
+\begin{align}
+\angleb{f, h} = \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+Given two functions $\textbf{f}, \textbf{h}: \R^D \rightarrow \R^P$, 
+we define their inner product on the training data as 
+\begin{align}
+  \angleb{\textbf{f}, \textbf{h}} = \sum _{p=1}^P \angleb{f_p, h_p}.
+\end{align}
+Since $\Phi(f(x) + \Delta f(x)) = \Phi(f(x)) + \nabla\Phi(f(x))\Delta f(x) + 
+O(\Delta f^2(x))$,
+we can compute the functional gradient of $R[f]$
+with respect to $f$, and for each output dimension $p$ we have:
+\begin{align}
+  \nabla R[f]_p = \sum_{i=1}^n (\nabla\Phi_p(f(x_i)) - y_{i,p})\delta_{x_i} 
+    + \sum _{d=1}^D f_p(e_d)\delta_{e_d}.
+\end{align}
+Using definition of $\angleb{\;,\;}$ here, we have that
+for each feature dimension $f$, each response dimension $p$, 
+  and each set of features $S$, we have  
+\begin{align}
+  \angleb{\nabla R[f_S]_p , h_f} = 
+    \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(f_S(x_i)) - y_{i,p})x_{i,f}
+    + \lambda f_S(e_f)_p = b_{f,p}^S. 
+\end{align}
+Then given a feature group $g$, $b_{g}^S \in \mathbb{R}^{D_g \times P}$ satisfies 
+\begin{align}
+  \Vert b_{g}^S \Vert _F^2 = \sum _{f \in g} \sum _{p=1}^P {b_{f,p}^S}^2 = 
+    \sum _{i=1}^n \Vert x_{i,g}^T\textbf{r}(x_{i}) \Vert _2^2  + \sum _{d \in g} \Vert e_d^T\textbf{r}(e_d) \Vert _2^2,
+\end{align} where
+$\textbf{r}$ is defined in Algorithm \ref{gomp_glm}. This shows that in the functional view of the 
+feature selection problem for generalized linear model, Algorithm \ref{gomp_glm} chooses
+feature group $g$ that maximizes $\Vert b_{g}^S \Vert _F^2$. because each group is whitened, before adding the fake samples,
+ so that $C_{g_j} = ( 1 + \lambda) I$.
+\end{proof}
+
+Proof of Lemma \ref{lemma:main}, the approximately-submodularity of the task:
+\begin{proof}
+  The group selected by greedy algorithm at step $j$ is 
+  \begin{align*}
+    h_{g_j} = \arg \max _ {g} \frac{ 
+        \angleb{ \nabla \mathcal{R}[ f_{G_{j-1}}] , h } ^2 }
+        { c(g) }
+      = \arg \max _{g} \frac{ {b^{G_{j-1}}_g}^T b^{G_{j-1}}_g } { c(g) }
+  \end{align*}
+  Using Lemma ~\ref{lemma:smoothness}, we have: 
+  \begin{align*}
+    F(S_{\angleb{K}}) - F(G_{j-1}) \leq 
+      \frac{1}{2m} {b^{G_{j-1}}_{G_{j-1} \oplus S_{\angleb{K}}}}^T
+      C^G_{G_{j-1} \oplus S_{\angleb{K}}} b^{G_{j-1}}_{G_{j-1} \oplus S_{\angleb{K}}}
+  \end{align*}
+  Since in orthogonal matching pursuit, we refit the weights of each $g \in G_{j-1}$ such
+  that $\angleb{\nabla R[ f_{G_{j-1}}], h_g} = 0$. 
+  So $b^{G_{j-1}}_{g} = 0$ for all $g \in G_{j-1}$. Then, using block matrix inverse
+  formula, we have:
+  \begin{align*}
+    F(S_{\angleb{K}}) - F(G_{j-1}) \leq 
+      \frac{1}{2m} 
+      {b^{G_{j-1}}_{S_{\angleb{K}}}}^T
+      C^G_{S_{\angleb{K}}} 
+      b^{G_{j-1}}_{S_{\angleb{K}}}
+  \end{align*}
+  where 
+  \begin{align*}
+    C^G_{S_{\angleb{K}}} = C_{S_{\angleb{K}}} - C_{{S_{\angleb{K}}}G} 
+      C^{-1}_{S_{\angleb{K}}} C_{G{S_{\angleb{K}}}}  
+  \end{align*}
+  Using spectral techniques in \cite{kemp}, we can show that:
+  \begin{align*}
+      \frac{1}{2m} 
+      {b^{G_{j-1}}_{S_{\angleb{K}}}}^T
+      C^G_{S_{\angleb{K}}} 
+      b^{G_{j-1}}_{S_{\angleb{K}}}
+    \leq 
+      \frac{1}{2m \lambda_{min}(C)} 
+      {b^{G_{j-1}}_{S_{\angleb{K}}}}^T
+      b^{G_{j-1}}_{S_{\angleb{K}}}
+  \end{align*}
+  By Lemma ~\ref{lemma:convexity} we have:
+  \begin{align*}
+      F(G_j) - F(G_{j-1}) \geq \frac{1}{2M (1+ \lambda)} 
+        {b^{G_{j-1}}_{g_j}}^Tb^{G_{j-1}}_{g_j}
+  \end{align*}
+  Putting them together we have:
+  \begin{align*}
+        &F(S_{\angleb{K}}) - F(G_{j-1}) \\
+    &\leq 
+        \frac{1}{2m\lambda_{min}(C)} \sum _{s_i \in S_{\angleb{K}}} 
+        {b^{G_{j-1}}_{s_i}}^T{b^{G_{j-1}}_{s_i}} \\
+    &\leq
+        \frac{1}{2m\lambda_{min}(C)} \sum _{s_i \in S_{\angleb{K}}} 
+        c(s_i) \max_{g} \frac{{b^{G_{j-1}}_{g}}^T{b^{G_{j-1}}_{g}}}{c(g)} \\
+    &\leq
+        \frac{1}{2m\lambda_{min}(C)} \sum _{s_i \in S_{\angleb{K}}} 
+        c(s_i) \frac{{b^{G_{j-1}}_{g_j}}^T{b^{G_{j-1}}_{g_j}}}{c(g_j)} \\
+    &\leq
+        \frac{M (1+ \lambda)}{m\lambda_{min}(C)} \sum _{s_i \in S_{\angleb{K}}} 
+        c(s_i)
+          \frac{ F(G_{j}) - F(G_{j-1}) } { c(g_j) }
+  \end{align*}
+  Choosing $\gamma = \frac{m\lambda_{min}(C)}{M(1+ \lambda)}$ finishes the proof.
+\end{proof}
+
+\subsection{Extension to Multi-Dimensional Responses}
+In this section, we extend the proof of Lemma
+    \ref{lemma:smoothness} and \ref{lemma:convexity} to multi-dimensional 
+responses. 
+For proof of Lemma \ref{lemma:smoothness} and Lemma \ref{lemma:convexity},
+we use the same arguments, except that 
+(1) 
+    \[ 
+        \angleb{ \nabla \mathcal{R}[f_G], \sum _{s_i \in G\oplus S} w_i^T h_{s_i} }
+    \] is replaced with 
+    \[ \angleb{ \nabla \mathcal{R}[f_G], \sum _{s_i \in G\oplus S} W_i h_{s_i} } = 
+    \sum _{p=1}^P \angleb{ \nabla \mathcal{R}[f_G]_p, \sum _{s_i \in G\oplus S} (W_i)_p h_{s_i} }, \]
+where $\mathcal{R}[f_G]_p$ and $(W_i)_p$ refer to their $p^{th}$ row, respectively; 
+(2) \[ \Vert \sum _{s_i \in G \oplus S} w_i^T h_{s_i} \Vert ^2 \] 
+    is replaced with 
+    \[ \Vert \sum _{s_i \in G \oplus S} W_i h_{s_i} \Vert _F^2 = 
+     \sum _{p=1}^P \Vert \sum _{s_i \in G \oplus S} (W_i)_p h_{s_i} \Vert ^2.  \]
+Then the bounds for Lemma \ref{lemma:smoothness} and \ref{lemma:convexity} are replaced with
+$\sum _{p=1}^P \frac{1}{2m} b^G_{G \oplus S, p} C_{G \oplus S}^{-1} b^G_{G\oplus S, p}$, and 
+$ \sum _{p=1}^P \frac{1}{2M (1 + \lambda) } {b^{G_{j-1}}_{g_j,p}}^Tb^{G_{j-1}}_{g_j,p}$, respectively. 
+With the above extension, the argument for Lemma \ref{lemma:main} follows, and thus, we again have approximately-submodularity 
+to prove the theorem. 
+
+ \hline        
+        
+        
+
+
+\subsection{Notation}
+Let $X$ be the feature matrix of dimension $n \times d$. 
+Each feature group is whitened within the group, i.e. $X_g^TX_g = I$ for each feature group $g$. 
+The cost of a feature group $g$ is $c(g)$. 
+Let $S = (s_i)_i$ be a sequence of feature groups
+and $S_j = (s_1, ..., s_j)$ be the first $j$ number of groups in $S$.  
+Let $S_{\angleb{K}}$ for $K \in \mathbb{R}$ be a sequence of feature groups whose total cost is no greater than $K$. 
+Let $G = (g_i)_i$ be the sequence of feature groups selected by greedy algorithm. 
+Let $G_{\angleb{B}}$ for $B \in \mathbb{R}$ be $G$ that stops right before the total costs exceeds $B$. 
+Let $C$ be the regularized covariance matrix of features, such that
+  \begin{equation}
+    C_{ij} = \frac{1}{n} X_i^TX_j + \lambda \mathbb{1}(i=j) = \angleb{h_i, h_j}.
+  \end{equation}
+We denote the minimum eigenvalue of $C$ as $\lambda_{min}(C)$. 
+We also define for each feature dimension $f$, 
+\begin{equation}
+ b_{f}^S \triangleq - ( \frac{1}{n}\sum_{i=1}^n (w(S)^Tx_{i,S} - y_{i,p})x_{i,f} + \lambda w(S)_{f} ) = 
+ 	- \angleb{ h_f, \nabla \mathcal{R}[f_S] }. 
+\end{equation}
+
+\begin{theorem}
+Fix some $\ell > 0$. Let $B = \sum _{i=1}^\ell c(g_i)$. 
+If the minimization objective $\mathcal{R}$ 
+ with regularization $\lambda$
+is a $M$-strongly convex and $m$-strongly smooth
+ functional of the predictor, then there exists 
+  $\gamma = \frac{m\lambda _{min}(C)}{M(1+\lambda)}$, such that
+for all sequence $S$ and total cost $K$, 
+\begin{align}
+  F(G_{\angleb{B}}) > (1 - e^{-\gamma\frac{B}{K}})F(S_{\angleb{K}})
+\end{align}
+\label{thm:main}
+\end{theorem}
+
+%%%%%%%%%%%%%
+%%%%%%%% Lemma approximately submodularity
+\begin{lemma}
+  There exists $\gamma = \frac{m}{M}\frac{\lambda_{\min}(C)}{(1 +\lambda)} > 0$ such that for all $S$ and total cost $K$,  
+  \begin{align}
+    F(S_{\angleb{K}}) - F(G_{j-1}) \leq \frac{K}{\gamma}
+      \lbrack \frac{F(G_j) - F(G_{j-1})}{c(g_j)} \rbrack
+  \end{align}
+  \label{lemma:main}
+\end{lemma}
+
+
+%%%%%%%%%%%%% 
+%%%%%%%   Lemma Strong smoothness
+
+
+%%%%%%%%%%%%% 
+%%%%%  Lemma Strong convexity
+\begin{lemma}
+  Let $\mathcal{R}$ be a M-stronly convex objective. Then
+    \begin{align}
+      F(G_j) - F(G_{j-1}) \geq \frac{1}{2M (1 + \lambda) } {b^{G_{j-1}}_{g_j}}^Tb^{G_{j-1}}_{g_j}
+    \end{align}
+  \label{lemma:convexity}
+\end{lemma}
+
+
+
+\subsection{Tardiness Measurement}
+We quantify the performance of an anytime feature selection algorithm with 
+a measurement that we call \textbf{tardiness}, which is the area
+under the loss vs. feature cost curve, normalized by the total area. This follows from 
+the \textit{timeliness} measurement in \cite{timeliness}, which is the area under the 
+average precision vs. time curve, normalized by the total area. 
+In fact, tardiness equals to one minuses timeliness when we choose classification 
+error rate as the loss function. 
+
+In both data-sets, the performance of linear predictors plateaus much earlier than
+all features are used, e.g. in \YahooDataset, the square loss plateaus using around 4000 unit costs while the total feature cost is above 10,000. Hence the majority of the tardiness measurement is from the plateau performance of linear predictors.
+Thus, the difference in tardiness of different anytime algorithms diminishes due to the plateau effect. Furthermore, the difference has a limit zero as we include additional redundant features of high costs. To account for this plateau effect, 
+we define an ``$\alpha$-stopping cost" for parameter $\alpha$ in $[0,1]$ as the cost at which our CS-G-OMP achieves $\alpha$ of the total 
+reduction in loss in training, and we ignore the loss vs. cost curve after
+the $\alpha$-stopping cost. We call the tardiness measure on the shortened curve 
+as ``$\alpha$-tardiness"; 1-tardiness equals tardiness, and 0-tardiness is zero. 
+
+To approximate the best possible feature selection order, we take a similar approach as in \cite{timeliness}. We reorder the feature groups 
+in descending order of their marginal reductions to the loss, and assume that 
+the marginal reductions are preserved. We call this ordering the \textbf{Oracle}. In general, however,
+the marginal reductions is not preserved through reordering, because 
+in general, a marginal improvement is the result of both the new feature and previous features. For the same reason, oracles derived from different loss vs. cost curves 
+may be different. To guarantee the optimality of our \textbf{Oracle}, we use 
+the best performing loss vs. cost curve to produce \textbf{Oracle}. The specific choice is made in Section~\ref{sec:selection_methods}.
+
+
+\begin{table}[b]
+\caption{Timeliness measurement of different methods on \GrainDataset. We denote 
+our proposed cost-sensitve group orthogonal matching pursuit as G-OMP here. }
+\label{tab:grain_auc} 
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+\multicolumn{4}{|c|}{CS-G-OMP-Variants} &
+\multicolumn{2}{c|}{G-FR-Variants} &
+\; \\
+\hline
+	G-OMP & 
+	Single & 
+	No-Whiten & 
+	Ignore-Cost & 
+	G-FR 		& 
+	Single &
+	G-FR-Oracle \\
+	\hline
+	0.53599 & %G-OMP & 
+	0.55428 &%G-OMP-Single & 
+	0.53932 &%G-OMP-No-Whiten & 
+	0.55458 &%G-OMP-Ignore-Cost & 
+	0.52680 &%G-FR 		& 
+	0.52763 &%G-FR-Single &
+	0.52543 \\ %Oracle \\
+	\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[b]
+\caption{Tardiness measurement of different methods on \YahooDataset. We denote 
+our proposed cost-sensitve group orthogonal matching pursuit as G-OMP here. }
+\label{tab:yahoo_auc} 
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Group &
+\multicolumn{4}{c|}{CS-G-OMP-Variants} &
+\multicolumn{2}{c|}{G-FR-Variants} &
+\; \\
+\cline{2-8}
+	Size &
+	G-OMP & 
+	Single & 
+	No-Whiten & 
+	Ignore-Cost & 
+	G-FR 		& 
+	Single &
+	G-FR-Oracle \\
+	\hline
+	5       & %Group Size
+	0.66809 & %G-OMP & 
+	0.67440 &%G-OMP-Single & 
+	0.67064 &%G-OMP-No-Whiten & 
+	0.67376 &%G-OMP-Ignore-Cost & 
+	0.66674 &%G-FR 		& 
+	0.66705 &%G-FR-Single &
+	0.66638 \\ %Oracle \\
+\hline
+	10      & %Group Size
+	0.66992 & %G-OMP & 
+	0.67418 &%G-OMP-Single & 
+	0.67264 &%G-OMP-No-Whiten & 
+	0.67795 &%G-OMP-Ignore-Cost & 
+	0.66805 &%G-FR 		& 
+	0.66875 &%G-FR-Single &
+	0.66786 \\ %Oracle \\
+\hline
+	15      & %Group Size
+	0.67098 & %G-OMP & 
+	0.67238 &%G-OMP-Single & 
+	0.67296 &%G-OMP-No-Whiten & 
+	0.68217 &%G-OMP-Ignore-Cost & 
+	0.66922 &%G-FR 		& 
+	0.66981 &%G-FR-Single &
+	0.66902 \\ %Oracle \\
+\hline
+	20      & %Group Size
+	0.66979 & %G-OMP & 
+	0.67316 &%G-OMP-Single & 
+	0.67261 &%G-OMP-No-Whiten & 
+	0.67817 &%G-OMP-Ignore-Cost & 
+	0.66929 &%G-FR 		& 
+	0.66985 &%G-FR-Single &
+	0.66915 \\ %Oracle \\
+	\hline
+\end{tabular}
+\end{center}
+\end{table}

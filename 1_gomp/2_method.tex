@@ -1,0 +1,172 @@
+\section{COST-SENSITIVE GREEDY METHOD}
+\label{sec:method}
+
+This section formally introduces our extensions to FR and OMP to 
+the group setting with costs. 
+We assume that all feature dimensions and responses are normalized to 
+have zero mean and unit variance. 
+We define the regularized feature covariance matrix as 
+$C := \frac{1}{n}X^TX + \lambda I_D$. Let $C_{st}$ be the sub-matrix that selects rows from $s$ and columns from $t$. Let $C_S$ be short for $C_{SS}$. 
+Given a non-empty union of selected feature groups $S$, the maximum explained variance 
+$F(S)$ is achieved with the regularized optimal 
+coefficient 
+\mbox{$w(S) = \frac{1}{n}(\frac{1}{n}X_S^TX_S + \lambda I)^{-1}(X_S^TY) = 
+    \frac{1}{n} C_S^{-1}X_S^TY$}.
+When we take gradient of $F(S)$ with respect to the coefficient 
+of a feature group $g$, if $g \subseteq S$ then the gradient is
+\mbox{$\nabla_g F(S) = \frac{1}{n} X_g^T(Y-X_Sw(S)) - \lambda w(S)_g
+$}; if 
+$g \cap S  =\emptyset$ then we can extend $w(S)$ to dimensions of $g$, setting $w(S)_g = 0$, and then take the gradient to have 
+\mbox{$\nabla_g F(S) =\frac{1}{n} X_g^T(Y-X_Sw(S))$}. In both cases,
+we have $\nabla_g F(S) = \frac{1}{n} X_g^TY - C_{gS}w(S)$. We further shorten 
+the notations by defining $b_g^{S} = \nabla _g F(S)$. 
+If $S$ is empty, we assume that coefficient $w(\emptyset)$ has zero for all features so that $F(\emptyset) = 0$. 
+When $S = s_1, s_2,...,$ is a sequence of feature groups, we define
+$S_j$ to be the prefix sequence $s_1, s_2,..., s_j$. We 
+overload notations of a sequence $S$ so that $S$ also represents 
+the union of its groups in notations such as $F(S)$, $w(S)$, $C_S$ and $b_S^S$. 
+
+
+
+
+
+%This section introduces our Cost-Sensitive Group Orthogonal Matching Pursuit algorithm for linear prediction with a single response dimension. We first define the sequencing problem as an optimization problem, and then describe our algorithm. In Section~\ref{sec:extension} we extend this algorithm to generalized linear models and multi-dimensional outputs. 
+
+%\subsection{Feature Group Sequencing for Linear Regression}
+%Let the data be $\{(x^i, y^i) : i = 1,..., n \}$,  where $x^i \in \R^{D}$ is the feature of sample $i$ and $y^i \in \R$ is its response. Let $X \in \mathbb{R}^{n\times D}, Y \in \mathbb{R}^{n}$ be the data matrix and response vector. We assume here that the responses have mean zero, i.e., $\sum _{i=1}^n y_i = 0$. The risk of a linear predictor $\hat{y}(x) = w^Tx$, with a regularization constant $\lambda$, can be written as 
+%\mbox{$ 
+	%\textbf{r}(w) = \frac{1}{2n} \sum_{i=1}^n \Vert w^T x^i - y_i \Vert _2^2 
+  	%	+ \frac{\lambda}{2} \Vert w \Vert _2^2.
+%$}
+%Let $\mathcal{G}_1, ..., \mathcal{G}_J$ be a group structure (partition) of features with cost $c(\mathcal{G}_1), ..., c(\mathcal{G}_J)$, and number of dimensions $D_{\mathcal{G}_1}, ..., D_{\mathcal{G}_{J}}$. Let $S$ be a union of a collection of feature groups, i.e.,
+%$S \in 
+%	\mathcal{F} \triangleq \{ \cup _{j \in \Lambda} \mathcal{G}_j : \Lambda \subseteq \{1, ..., J \} \}$. We define $x^i_S$ to be the feature of $i^{th}$ sample restricted to 
+%dimensions in $S$. We then define the risk of $S$, with regularization constant $\lambda$, as the minimum risk of linear prediction restricted to $S$, i.e.,
+%\begin{align}
+%  R(S) &\triangleq \underset{w : \forall g \notin S  w_g = \textbf{0}}{\min} \textbf{r}(w) \notag \\
+%  &= \min _{w \in \mathbb{R}^{|S|}} 
+%  	\frac{1}{2n} \sum_{i=1}^n \Vert w^T x^i_S - y_i \Vert _2^2 
+%  		+ \frac{\lambda}{2} \Vert w \Vert _2^2.
+%  \label{eq:min_orig_lr}
+%\end{align} 
+%By convention, we define $w^T x^i_{\emptyset}$ as $0$. Hence we have 
+%$R(\emptyset) = \frac{1}{2n} \sum _{i=1}^n  \Vert y_i \Vert ^2_2$.
+%We define $w(S) \in \mathbb{R}^{|S|}$ as the feature coefficient vector $w$ that achieves the minimum in Equation~\ref{eq:min_orig_lr}; $w(S)$ can be solved
+% analytically, with \mbox{$w(S) = \frac{1}{n}(\frac{1}{n}X_S^TX_S + \lambda I)^{-1}(X_S^TY)$}. 
+% For convenience, we define 
+% 	$w(S)_{\mathcal{G}_j}$ as the 
+% weight assigned to group $\mathcal{G}_j$ by $w(S)$, if $\mathcal{G}_j \subseteq S$; and 
+% zero if otherwise.
+%Finally, we define the problem of selecting the most efficient features for linear prediction with a given budget $B$ as the following concave maximization problem:
+%\mbox{
+%$
+	%\underset{S \in \mathcal{F}}{\max} R(\emptyset) -  R(S) \quad\text{ subject to }
+		%\underset{j=1..J : \mathcal{G}_j \subseteq S}{\sum} c(\mathcal{G}_j) \leq B. 
+	%\label{eq:min_objective}
+%$}
+%The objective function $F(S) \triangleq R(\emptyset) - R(S)$ is also known as the explained variance\footnote{Note that $F(S) \geq 0$ for all $S$, since $R(\emptyset)$ is equivalent to setting $w=0$ in solving the minimization in Equation~\ref{eq:min_orig_lr}, and thus, $R(\emptyset)$ upper-bounds $R(S)$ for all $S$.}, and our theoretical analysis provides a bound on our achieved explained variance by a constant factor of the optimal value at each time when we select a new feature group. 
+ 
+\label{sec:algo_description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Algorithm statement %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%\IncMargin{1em}
+%\begin{algorithm}
+%\caption{Cost Sensitive Group Orthogonal Matching Pursuit (CS-G-OMP)}
+%  \label{algo:gomp_lm}
+%  \SetKwInOut{Input}{input}\SetKwInOut{Output}{output}
+%
+%  \Input{The normalized feature matrix $X \in \R^{n \times D}$.
+%    The normalized response vector $Y \in \mathbb{R}^{n}$, which has 
+%    a zero mean and unit variance. 
+%    Feature groups $\mathcal{G}_1, ... \mathcal{G}_J$ that
+%    partition $\{1,..,D\}$, and group costs $c(\mathcal{G}_j)$.
+%    Regularization constant $\lambda$.
+%  }
+%  \Output{
+%    A sequence $G = g_1, g_2, ..., g_{J}$ of feature groups.
+%    For each $j \leq J$, a coefficient 
+%        $w(G_j)$ for the prefix sequence $G_j = g_1,..., g_j$. 
+%  }
+%
+%  $G_0 = \emptyset$\;
+%  \For{$j = 1, 2, ..., J$}{
+%  	\tcp{Learn linear model}
+%    compute $w(G_{j-1}) = \frac{1}{n}C_{G_{j-1}}^{-1}X_{G_{j-1}}^TY$\;
+%    \tcp{Selection step (*)}
+%    For each $g \notin G_{j-1}$, compute
+%        \quad $b_g = \nabla _g F(G_{j-1}) = \frac{1}{n} X_g^T(Y-X_{G_{j-1}}w)$ \;
+%    $g_{j} = \argmax \limits_{g = \mathcal{G}_1, ... , \mathcal{G}_J, g\notin G_{j-1}}  
+%    \frac{b_g ^T (X_{g}^TX_g)^{-1}b_g}{ c(g) }$\;
+%    $G_{j} = G_{j-1} \oplus g_{j}$\;
+%  }
+%  compute $w(G_J)$\;
+%\end{algorithm}
+
+
+In Algorithm~\ref{algo:gomp_lm}, we present Cost-Sensitive Group Orthogonal Matching Pursuit (CS-G-OMP), which learns a near-optimal sequencing of the
+feature groups for anytime linear predictions. 
+The feature groups are selected greedily. At the $j^{th}$ selection step $(*)$, we have chosen $j-1$ groups,
+$G_{j-1} = g_1, g_2, ..., g_{j-1}$, and have computed 
+the best model using $G_{j-1}$, $w(G_{j-1})$. 
+To evaluate a feature group $g$,
+we first compute the gradient $b_g = \nabla _g F(G_{j-1})$ of the 
+explained variance $F$ with respect to the coefficients of $g$.
+Then, we evaluate it with the whitened gradient $L_2$-norm square per unit cost, 
+$\frac{b_g ^T (X_{g}^TX_g)^{-1}b_g}{ c(g) }$. We select the group $g$ that 
+maximizes this value as $g_j$, and continue until all groups
+are depleted. At test time, our proposed anytime prediction algorithm computes the feature groups in the order of $G = g_1, g_2, ..., g_J$. After each feature group $g_j$ is available, we can compute and store prediction $\hat{y} = x^Tw(G_j)$ because we assumed that 
+the costs of feature generation dominate the computations of linear predictions. At interruption,
+we can then report the latest prediction $\hat{y}$. 
+
+The learning procedure extending from Forward Regression is similar to
+Algorithm~\ref{algo:gomp_lm}: we compute the linear models 
+$w(G_{j-1} \oplus g)$ at line 4 instead of the 
+gradients $b_g$ and replace the selection criterion $\frac{b_g ^T (X_{g}^TX_g)^{-1}b_g}{ c(g) }$ at line 5 with the marginal gain in explained 
+variance per unit cost, $\frac{F(G_{j-1} \oplus g) - F(G_{j-1}) }{c(g)}$. We call this cost-sensitive FR extension as CS-G-FR.
+
+
+Before we theoretically analyze our greedy methods
+in the next section, we provide an argument 
+why \textbf{group whitening} at line 5 of Algorithm~\ref{algo:gomp_lm} 
+is natural. OMP greedily selects features whose
+coefficients have the largest gradients of the objective function. 
+In linear regression, the gradient for a feature $g$ 
+is the inner-product of $X_g$ and the prediction 
+residual $Y-\hat{Y}$. Hence OMP selects features that best reconstruct the 
+residual. From this perspective, OMP under group setting 
+should seek the feature group whose span contains the largest projection of the residual. 
+Let the projection to feature group $g$ be 
+$P_g = X_g(X_g^TX_g)^{-1}X_g^T$ and recall projection matrices are
+idempotent. We observe that the criterion for CS-G-OMP selection step is
+$\frac{\Vert P_g (Y - \hat{Y}) \Vert _2^2 }{c(g)}$, i.e, a cost-weighted
+norm square of the projection of the residual onto a feature group. The 
+name group whitening is chosen because the criterion is 
+$\frac{\Vert b_g \Vert_2^2}{c(g)}$ if and only if feature groups are whitened. We assume \textit{feature groups are whitened} in our formal analysis to make the criterion easier to analyze. 
+
+%%%%%%%%%TODO 
+Besides the above greedy criterion, one may suggest other approaches 
+to evaluate gradient vectors $b_g$ for group $g$. For example, 
+$L_2$ norm and $L_{\infty}$ norm can be used to 
+achieve greedy criteria $\frac{\Vert b_g \Vert_2^2}{c(g)}$ and 
+$\frac{\Vert b_g \Vert ^2_{\infty}}{c(g)}$, respectively. 
+The former criterion forgoes group whitening, so we call it \textit{no-whiten}.
+Thus, it overestimates a feature group that has correlated 
+but effective features, an extreme example of which is a
+feature group of identical but effective features. The latter
+criterion evaluates only the best feature of each feature group, so we call it \textit{single}. Thus, it
+underestimates a feature group that has a descriptive 
+feature span but no top-performing individual feature dimensions.
+We will show in experiments that no-whiten and single
+are indeed inferior to our CS-G-OMP choice. 
+
+%Note that we use $L_2$-norm square of the gradients of the groups, $\Vert b_g \Vert _2^2$, as a measurement of the effectiveness of a feature group. We show experimentally and theoretically that replacing $L_2$-norm with $L_{\infty}$ results in worse performance. We call the $L_{\infty}$ alternative as \textbf{Single}, since it evaluates a feature group based on its single best feature dimension. It is also crucial that 
+%we assume each feature group $g$ to be whitened, i.e., $X_g^TX_g = I_{D_g}$, a property that we call \textbf{Group Whitened}. Theoretical analyses of \cite{gomp} and \cite{log_gomp} also rely on this assumption but did not explain the impact of not group whitening the data, which we will do in experiments and analysis. 
+%As mentioned in \cite{log_gomp}, if the data is not group whitened before training, one equivalent method  of group whitening is to replace 
+%$\Vert X_g^T (Y - X_{G_{j-1}}w) \Vert _2^2$ in step $(*)$ with 
+%\begin{align}
+%  &{b_g^{G_{j-1}}}^T(X_g^TX_g)^{-1}b_g^{G_{j-1}}=  \notag \\
+%  & (Y - X_{G_{j-1}}w)^T X_g(X_g^TX_g)^{-1}X_g^T (Y - X_{G_{j-1}}w).
+%\end{align}
+%This replacement frees us from group whitening each individual sample, reducing training complexity by $O(nD^2)$ operations. 

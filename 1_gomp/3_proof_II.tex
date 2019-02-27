@@ -1,0 +1,191 @@
+
+\section{Additional Proof Details}
+\label{sec:proof_II}
+This section describes a functional boosting view of selecting features for generalized linear models of one-dimensional response. We then prove Lemma~\ref{lemma:smoothness} and Lemma~\ref{lemma:convexity} for this more general setting. These more general
+results in turn extend Theorem~\ref{thm:main} to generalized 
+linear models.
+
+\subsection{Functional Boosting View of Feature Selection}
+\label{sec:functional}
+
+We view each feature $f$ as a function 
+$h_f$ that maps sample $x$ to $x_f$. We define $f_S: \R^{D} \rightarrow \R$ 
+to be the best linear predictor using features in $S$, i.e., $f_S(x) \triangleq w(S)^Tx_S$. For each feature dimension $d \in D$, the coefficient of 
+$d$ is in $w(S)$ is $w(S)_d = f_S(e_d)$, where $e_d$ is the $d^{th}$ dimensional unit vector. So $\Vert w(S) \Vert_2^2 = \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2$. 
+Given a generalized linear model with link function $\nabla \Phi$, 
+the predictor is $E[ y | x ] = \nabla \Phi(w^Tx)$ for some $w$ and the calibrated loss is $r(w) = \sum _{i=1}^n (\Phi(w^Tx_i) - y_iw^Tx_i)$. 
+Replacing $f_S(x_i) = w(S)^Tx_i$, we have 
+\begin{align}
+	r(w(S)) = \sum _{i=1}^n (\Phi(f_S(x_i)) - y_if_S(x_i)).
+	\label{eq:glm_loss_general}
+\end{align}
+Note that the risk function in Equation~\ref{eq:risk} can be rewritten as 
+the following to resemble Equation~\ref{eq:glm_loss_general}:
+\begin{align}
+ R(S) = 
+ 	\mathcal{R}[f_S] =& \frac{1}{n} \sum _{i=1}^n (\Phi(f_S(x_i)) - y_i^Tf_S(x_i)) \notag \\
+    &{} + \frac{\lambda}{2} \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2 + A,
+  \label{eq:min_func}
+\end{align}
+where $\phi(x) = \frac{1}{2}x^2$ for linear predictions and constant 
+$A = \frac{1}{2n} \sum _{i=1}^n y_i^2$. 
+Next we define the inner product between two functions $f, h : \R^D \rightarrow \R$ 
+over the training set to be:
+\begin{align}
+\angleb{f, h} \triangleq \frac{1}{n} 
+  \sum _{i=1}^n f(x_i)h(x_i) + \frac{\lambda}{2} \sum _{d=1}^D f(e_d)h(e_d).
+\end{align}
+With this definition of inner product, we can compute the derivative of 
+$\mathcal{R}$:
+\begin{align}
+  \nabla \mathcal{R}[f]  = \sum_{i=1}^n (\nabla\Phi(f(x_i)) 
+  	- y_{i})\delta_{x_i} 
+    + \sum _{d=1}^D f(e_d)\delta_{e_d},
+\end{align}
+where $\nabla \phi(x) = x$ for linear predictions, and 
+$\delta_x$ is an indicator function for $x$. 
+Then the gradient of objective $F(S)$ w.r.t coefficient $w_f$ of a feature dimension  $d$ can be written as:
+\begin{align}
+ b_{d}^S &= - \frac{1}{n}\sum_{i=1}^n (\nabla\Phi_p(w(S)^Tx^i) - y^{i})x^i_d - \lambda w(S)_d \\
+    &= - \angleb{  \nabla \mathcal{R}[f_S], h_d }.
+\end{align}
+In addition, the regularized covariance matrix of features $C$ satisfies,
+\begin{equation}
+    C_{ij} = \frac{1}{n} X_i^TX_j + \lambda I(i=j) = \angleb{ h_i, h_j},
+\end{equation}
+for all $i, j = 1,2,..., D$.
+So in this functional boosting view,  Algorithm~\ref{algo:gomp_lm} greedily chooses group $g$ that maximizes, with a slight abuse of notation of $\angleb{ \;, \; }$,
+$\Vert \angleb{ h_g , \nabla \mathcal{R}[f_S] } \Vert _2^2 / c(g)$, i.e., 
+the ratio between similarity of a feature group and the functional gradient, 
+measured in sum of square of inner products, and the cost of the group
+
+
+\subsection{Proof of Lemma~\ref{lemma:smoothness} and Lemma~\ref{lemma:convexity}}
+
+The more general version of Lemma~\ref{lemma:smoothness} and Lemma~\ref{lemma:convexity} assumes that the objective functional $\mathcal{R}$ 
+is $m$-strongly smooth and $M$-strongly convex using our proposed inner product rule.  
+$M$-strong convexity is a reasonable assumption, 
+because the regularization term $\Vert w \Vert _2^2 = \sum _{d = 1}^D \Vert f_S(e_d) \Vert _2^2$ ensures that all loss functional $\mathcal{R}$ with a convex $\Phi$ 
+ strongly convex. 
+In the linear prediction case, both $m$ and $M$ equals $1$. 
+
+The following two lemmas are the more general versions of Lemma~\ref{lemma:smoothness} and Lemma~\ref{lemma:convexity}.
+\begin{lemma}
+  Let $\mathcal{R}$ be an m-strongly smooth functional with respect to our definition of inner products. Let $S$ and $G$ be some fixed sequences. Then
+  \begin{align}
+   F(S) - F(G) \notag \leq \frac{1}{2m} \angleb{b^G_{G \oplus S}, C_{G \oplus S}^{-1} b^G_{G\oplus S}}
+  \end{align}
+  \label{lemma:smoothness_glm}
+\end{lemma}
+\begin{proof}
+First we optimize over the weights in $S$. 
+  \begin{align*}
+    &{} F(S) - F(G) \\
+    &= \mathcal{R}[f_G] - \mathcal{R}[f_S] 
+     = \mathcal{R}[f_G] - \mathcal{R}[\sum _{s \in S} \alpha_s^T h_s] \\
+    &\leq \mathcal{R}[f_G] - \min _{w : w_i^T \in \R^{d_{s_i}}, s_i \in S} 
+        \mathcal{R}[ \sum _{s_i \in S} w_{s_i}^T h_{s_i}] \\
+\intertext{Adding dimensions in $G$ will not increase the risk, we have: }
+    &\leq \mathcal{R}[f_G] - \min _{w : w_i \in \R^{d_{s_i}}, s_i \in G \oplus S}
+        \mathcal{R}[ \sum _{s_i \in G \oplus S} w_{s_i} h_{s_i}] \\
+\intertext{Since $f_G = \sum _{g_i \in G} \alpha_i h_{g_i}$, we have:}
+    &\leq \mathcal{R}[f_G] - \min _{w} 
+      \mathcal{R}[f_G + \sum _{s_i \in G \oplus S} w_i^T h_{s_i}] \\
+\intertext{Expanding using strong smoothness around $f_G$, we have:}
+    &\leq \mathcal{R}[f_G] - \min _{w} (
+      \mathcal{R}[f_G] + \angleb{ \nabla \mathcal{R}[f_G], 
+        \sum _{s_i \in G\oplus S} w_i^T h_{s_i} } \notag \\
+    &\quad + \frac{m}{2} \Vert \sum _{s_i \in G \oplus S} w_i^T h_{s_i} \Vert _2^2) \\
+    &= \max_{w} - 
+      \angleb{ \nabla \mathcal{R}[f_G], 
+      \sum _{s_i \in G\oplus S} w_i^T h_{s_i} } 
+        - \frac{m}{2} \Vert \sum _{s_i \in G \oplus S} w_i^T h_{s_i} \Vert _2^2 \\
+    &= \max_w \angleb{ b^{G}_{G\oplus S}, w} - \frac{m}{2} \angleb{w, C_{G\oplus S}w}
+ \end{align*}
+Solving $w$ directly we have:
+\begin{align*}
+  F(S) - F(G) \leq \frac{1}{2m} \angleb{ b^{G}_{G\oplus S} , C_{G\oplus S}^{-1} b^{G}_{G\oplus S}}
+\end{align*}
+\end{proof}
+
+
+%%%%%%%%%%%%% 
+%%%%%  Lemma Strong convexity
+\begin{lemma}
+  Let $\mathcal{R}$ be a M-strongly convex functional with respect to our definition of 
+  inner products. Then
+    \begin{align}
+      F(G_j) - F(G_{j-1}) \geq \frac{1}{2M (1 + \lambda) } \angleb{{b^{G_{j-1}}_{g_j}}, b^{G_{j-1}}_{g_j} }
+    \end{align}
+  \label{lemma:convexity_glm}
+\end{lemma}
+\begin{proof}
+After the greedy algorithm chooses some group $g_j$ at step $j$, 
+  we form $f_{G_j} = \sum _{\alpha _i} \alpha_i^T h_{g_i}$, such that
+   \[
+    \mathcal{R}[f_G] = \min _{ \alpha _i \in \R^{d_{g_i}}} 
+      \mathcal{R}[ \sum _{g_i \in G_j} \alpha_i^T h_{g_i}] \leq
+      \min _{\beta \in \R^{d_{g_j}}} 
+    \mathcal{R}[f_{G_{j-1}} + \beta h_{g_j}]
+   \]
+ Setting $\beta = \arg \min _{\beta \in \R^{d_{g_j}}} 
+    \mathcal{R}[f_{G_{j-1}} + \beta h_{g_j}]$, using the strongly convex condition at
+      $f_{G_{j-1}}$, we have:
+ \begin{align*}
+    &{} F(G_j) - F(G_{j-1}) \\
+    &=  \mathcal{R}[f_{G_{j-1}}] - \mathcal{R}[f_{G_j}] 
+    \geq \mathcal{R}[f_{G_{j-1}}] - \mathcal{R}[f_{G_{j-1}} + \beta h_{g_j}] \\ 
+    &\geq  \mathcal{R}[f_{G_{j-1}}] - 
+      (\mathcal{R}[f_{G_{j-1}}] + 
+        \angleb{ \nabla \mathcal{R}[f_{G_{j-1}}] , 
+        \beta h_{g_j} } \notag \\
+    &\quad + \frac{M}{2} \Vert \beta h_{g_j} \Vert _2^2) \\
+    &=  -  \angleb{ \nabla \mathcal{R}[f_{G_{j-1}}] , 
+        \beta h_{g_j} }
+       - \frac{M}{2} \Vert \beta h_{g_j} \Vert _2^2 \\
+    &=  \angleb{{b^{{G_{j-1}}}_{g_j}},  \beta} - \frac{M}{2} \angleb{\beta, C_{g_j} \beta} \\
+    &\geq  \frac{1}{2M} \angleb{ b^{{G_{j-1}}}_{g_j}, C_{g_j}^{-1} b^{{G_{j-1}}}_{g_j}} \\
+    &=  \frac{1}{2M (1+\lambda)} \angleb{{b^{{G_{j-1}}}_{g_j}}, b^{{G_{j-1}}}_{g_j}}
+ \end{align*}
+ The last equality holds because each group is whitened, 
+ so that $C_{g_j} = (1 + \lambda) I$.
+\end{proof}
+Note that the $(1+\lambda)$ constant is a result of group whitening, without which
+the constant can be as large as $(D_{g_j} + \lambda)$ for  the worst case where
+all the $D_{g_j}$ number of features are the same. \\
+
+The proofs above for Lemma~\ref{lemma:smoothness_glm} and~\ref{lemma:convexity_glm} are 
+for one-dimensional output responses. They can be easily generalized to multi-dimensional 
+responses by replacing 2-norms with Frobenius norms and vector inner-products with ``Frobenius products", i.e., the sum of the products of all elements. \\
+
+\subsection{Proof of Main Theorem}
+\label{sec:app-main-proof}
+Given Lemma~\ref{lemma:smoothness_glm} and Lemma~\ref{lemma:convexity_glm}, 
+the proof of Lemma~\ref{lemma:main} holds with the same analysis with a more 
+general constant $\gamma = \frac{m \lambda_{min}(C)}{M(1+\lambda)}$. The following prove our main theorem~\ref{thm:main}. 
+ 
+\begin{proof} (of Theorem~\ref{thm:main}, given Lemma~\ref{lemma:main})
+\label{proof:main}
+  Define $\Delta _j = F(S_{\angleb{K}}) - F(G_{j-1})$. Then we have 
+  $\Delta _j - \Delta_{j+1} = F(G_{j}) - F(G_{j-1})$. By Lemma ~\ref{lemma:main}, we have:
+  \begin{align*}
+    \Delta_j &= F(S_{\angleb{K}}) - F(G_{j-1})\\
+    &\leq \frac{K}{\gamma}
+      \lbrack \frac{F(G_{j}) - F(G_{j-1})}{c(g_{j})} \rbrack 
+        = \frac{K}{\gamma} \lbrack \frac{\Delta_j - \Delta_{j+1}}{c(g_j)} \rbrack
+  \end{align*}
+  Rearranging we get 
+    $\Delta_{j+1} \leq \Delta_j ( 1 - \frac{\gamma c(g_j)}{K} )$. Unroll we get:
+  \begin{align*}
+    \Delta _{L+1} 
+    &\leq 
+      \Delta _1 \prod _{j=1}^L (1 - \frac{\gamma c(g_j)}{K})
+    \leq \Delta _1 ( \frac{1}{L} \sum _{j=1}^L (1- \frac{\gamma c(g_j)}{K})) ^L\\
+    &= \Delta _1 (1 - \frac{B\gamma}{L K})^L < \Delta_1 e^{- \gamma \frac{B}{K}}
+  \end{align*}
+  By definition of $\Delta_1$ and $\Delta_{L+1}$, we have:
+  \begin{align*}
+    F(S_{\angleb{K}}) - F(G_{\angleb{B}}) < F(S_{\angleb{K}}) e^{- \gamma \frac{B}{K}}
+  \end{align*}
+  The theorem follows and linear prediction is the special case that $m = M$.
+\end{proof}

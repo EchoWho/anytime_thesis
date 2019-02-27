@@ -1,0 +1,173 @@
+\section{INTRODUCTION AND BACKGROUND}
+
+First defined by \cite{anytime}, anytime predictors output 
+valid results even if they are interrupted at any point in time. The results improve with resources spent. In this work, we propose an anytime linear prediction algorithm under the common 
+machine learning setting, where features are computed in groups with associated costs. We further assume that the cost of 
+prediction is dominated by feature computation. Hence, 
+we can achieve anytime predictions by computing feature groups
+in a specific order and outputting linear predictions 
+using only computed features at interruption.
+
+Formally, we are given $n$ samples $(x^i, y^i)$ from 
+a feature matrix $X \in \mathbb{R}^{n \times D}$ and a response vector $Y \in \mathbb{R}^n$. We also have a partition of the
+$D$ feature dimensions into $J$ feature groups, 
+$\mathcal{G}_1, \mathcal{G}_2, ..., \mathcal{G}_J$, and 
+an associated cost of each group $c(\mathcal{G}_j)$. Our anytime prediction approach learns a sequencing of the
+feature groups, $G$ = $g_1, g_2,..., g_J$. 
+For each budget limit $B$, the computed
+groups at cost $B$ is a prefix of the sequencing, $G_{\angleb{B}} = g_1, g_2,.., g_{J_{\angleb{B}}}$, 
+where 
+$J_{\angleb{B}} = \max \{ j\leq J | \sum _{i\leq j} c(g_i) \leq B \}$ indexes the last group within the budget $B$. 
+An ideal anytime algorithm seeks a sequencing $G$ to minimize risk at all budgets $B$:
+\begin{align}
+\label{eq:risk}
+R(G_{\angleb{B}}) :=   \min _{w}
+    \frac{1}{2n} \Vert Y - X_{{G_{\angleb{B}}}} {w} \Vert_2^2 + \frac{\lambda}{2} \Vert w\Vert_2^2,
+\end{align}
+where $X_{G_{\angleb{B}}}$ contains features in $G_{\angleb{B}}$, $w$ is the associated linear predictor coefficient, and $\lambda$ is a regularizing constant.
+Equivalently, if we assume that the $y^i$'s have unit variance and zero mean by normalization, we can maximize the explained variance, 
+$    \label{eq:exp-var}
+    F(G_{\angleb{B}}) := \frac{1}{2n} Y^TY - R(G_{\angleb{B}}). $
+
+The above optimization problem is closest to the problem of subset selection 
+for regression \citep{kemp}, which selects at most $k$ features to optimize a 
+linear regression. The problem is also similar to that of sparse model recovery 
+\citep{lasso}, which recovers coefficients of a true linear model. 
+One common approach to these two problems is to select the features greedily 
+via Forward Regression (FR) \citep{FR} or Orthogonal Matching Pursuit (OMP) \citep{omp}. 
+Forward Regression greedily selects features 
+that maximize the marginal increase in explained 
+variance at each step. 
+Orthogonal Matching Pursuit selects features as follows. The linear model coefficients of the unselected 
+features are set to zero. At each step, the feature whose model 
+coefficient has the largest gradient of the risk is selected. 
+In this work, we extend FR and OMP to the setting where features are in  
+groups that have costs. The extension to FR is intuitive: we
+only need to select feature groups using their marginal gain in 
+objective per unit cost instead of using just the marginal gain. However, we have
+two notes about the extension to OMP. First, to incorporate feature
+costs, we need to evaluate a feature based on the squared norm of 
+the associated weight vector gradient per unit cost instead of just the gradient norm. 
+Second, when we compute the gradient norm for a feature group, $\nabla_g$, 
+we have to use the norm $\nabla_g ^T (X_g^TX_g)^{-1} \nabla_g$, which is 
+$\Vert \nabla_g \Vert_2^2$ if and only
+if each feature group $g$ is whitened, which is an assumption 
+in group OMP analysis by \citet{gomp, log_gomp}. Our analysis 
+sheds light  on why this assumption is important in a group setting. 
+Like previous analyses of greedy algorithms by \cite{streeter:08},
+our analysis guarantees that our methods produce near-optimal linear predictions, measured by explained variance, 
+at budgets where feature groups are selected. Thus, they exhibit the desired anytime behavior at those budgets. Finally, 
+we extend our algorithm to account for \textit{all} budgets and show 
+a novel anytime result: for any budget $B$, 
+if \textit{OPT} is the optimal explained 
+variance of cost $B$, then our proposed sequencing can approximate 
+within a factor of \textit{OPT} with cost at most $4B$. 
+Furthermore, with a cost less than $4B$,
+a fixed sequence of predictors cannot approximate \textit{OPT} in general. 
+To our knowledge, these are the first  anytime performance bounds
+at all budgets. 
+
+
+In previous works, both FR and OMP are theoretically analyzed for both 
+the problem of subset selection and model recovery. 
+\cite{kemp} cast the subset selection problem as a submodular 
+maximization that 
+selects a set $S$ with $|S| \leq k$ to maximize 
+the explained variance and prove 
+that FR and OMP achieve $(1-e^{-\lambda^*})$ and $(1-e^{-{\lambda^*}^2})$ 
+near-optimal explained variance, where $\lambda^*$ is the minimum eigenvalue of the sample covariance, $\frac{1}{n}X^TX$.
+We can adopt these previous analyses to our extensions to FR and OMP under
+the group setting with costs and produce
+the same near-optimal results. We also present a novel analysis of 
+OMP that leads to the same near-optimal factor $(1-e^{-\lambda^*})$ as that of FR.
+Works on model recovery have also analyzed FR and OMP. \cite{zhang:2009} proves 
+that OMP discovers the true linear model coefficients, if they exist. 
+This result 
+was then extended by \citep{gomp, log_gomp} to the setting of feature 
+groups using generalized linear models. However, we note that these
+theoretical analyses of model recovery 
+assume that a true model exists. They focus on recovering
+model coefficients rather than directly analyzing prediction
+performance.
+
+Besides greedy selection, another family of approaches to
+find the optimal subset $S$ that minimizes $R(S)$ is to
+relax the NP-hard selection problem as a convex optimization. 
+Lasso \citep{lasso}, a well-known method, uses $L_1$ regularization
+to force sparsity in the linear model. To get an ordering of the
+features, compute the Lasso solution path by varying 
+the $L_1$ regularization constant. Group Lasso \citep{group_lasso} extends Lasso to the group setting, replacing the $L_1$ norm with 
+the sum of $L_2$ norms of feature groups. Group Lasso can also 
+incorporate feature costs by scaling the
+$L_2$ norms of feature groups. 
+Lasso-based methods are generally analyzed for model recovery,  
+not prediction performance. We demonstrate experimentally
+that our greedy methods achieve better prediction
+performance than cost-weighted Group Lasso.
+
+Various works have addressed anytime prediction previously. 
+The most well-known family of approaches 
+use \textit{cascades} \citep{cascade}, which achieve 
+anytime prediction by filtering out samples 
+with a sequence of classifiers of increasing complexity 
+and feature costs. 
+At each stage, cascade methods 
+\citep{sochman:05, brubaker:07, lefakis:10, xu:14, cai:15} 
+typically achieve a target accuracy and assign a portion of samples
+with their final predictions. While this design frees up computation for 
+the more difficult samples, it prevents recovery from early 
+mistakes. Most cascade methods select features of each 
+stage before being trained. Although the more recent works start to learn feature sequencing, the learned sequences
+are the same as those of cost-weighted Group Lasso \citep{chen:12} 
+and greedy methods \citep{cai:15} when they are 
+restricted to linear prediction. Hence our study of anytime 
+linear prediction can help cascade methods choose features and
+learn cascades. 
+Another branch of anytime prediction methods uses boosting. It outputs as results partial sums of the ensemble \citep{speedboost} or averages of randomly sampled weak learners \citep{reyzin:11}. Our greedy methods can be 
+viewed as a gradient boosting scheme by treating each feature 
+as a weak learner. 
+Some works approach anytime prediction with feature transformations \citep{xu:12, xu:13b} and learn cost-sensitive, non-linear transformation of features for linear classification. Similarly, \cite{weinberger09feature} hashes high dimensional features to low dimensional subspaces. These approaches operate on readily-computed features, which is orthogonal to our problem setting. 
+\cite{timeliness} models the anytime prediction as a Markov Decision Process and learns a policy of applying intermediate learners and computing features through reinforcement learning.
+
+\paragraph*{Contributions}
+\begin{itemize}[leftmargin=*]
+\setlength\itemsep{1em}
+\item We cast the problem of anytime linear prediction 
+as a feature group sequencing problem  
+and propose extensions to FR and OMP under the setting where features are in
+groups that have costs. 
+\item We theoretically analyze our extensions to FR and OMP 
+and show that they both achieve $(1-e^{-\lambda^*})$ near-optimal 
+explained variance with linear predictions at budgets when 
+they choose feature groups.
+\item We develop the first anytime algorithm 
+that provably approximates the optimal performance
+of \textit{all} budgets $B$ with cost of $4B$; we also prove it 
+impossible to achieve a constant-factor approximation with cost less than $4B$. 
+\end{itemize}
+
+
+
+
+
+
+%We consider the common machine learning setting where each group of features has
+%an associated cost, e.g., object recognition tasks in computer vision may require various groups of features, such as SIFT, HOG, and filter responses; inferences in computational biology may be based on several consecutive gene segments. Furthermore, it is common that 
+%feature generation dominates the total computation cost of linear predictions using these groups of features, e.g., generating bags-of-visual-words in computer vision tasks typically dominates the prediction time. In addition, we consider the setting where the test-time computational budget is unknown at training time, e.g., an obstacle detector on-board a moving vehicle may have varying deadlines depending on the speed of the vehicle; a software on a shared data center may have varying computational budget, depending on resources taken by other jobs. Hence, we may naturally consider trade-off between quality of results and computational costs via \textit{anytime} prediction\cite{anytime}. More specifically, in this work we seek a sequence of the feature groups, such that if we compute the features in its order and stop at any time based on test-time constraints, trained linear predictors using the already computed feature groups perform nearly as well as the optimal predictors of similar feature costs. 
+
+
+%In the context of linear prediction, the core of producing the near-optimal
+%linear predictors is to choose the most cost efficient feature groups, which 
+%is closely related to feature selection problem for linear regression. 
+%The sequencing problem above is closely related to the well-known feature selection problem, because both seek cost-efficient features. More formally, given a feature matrix $X \in \mathbb{R}^{n \times D}$, a response vector $Y \in \mathbb{R}^n$, and a partition of the $D$ dimensions as feature groups,
+%$\mathcal{G}_1, \mathcal{G}_2, ..., \mathcal{G}_J$, the feature group selection problem, in the context of linear prediction, is to balance between choosing an inexpensive set of groups, $I \subset \{ 1, ..., J\}$, and minimizing the risk of linear regression using the selected features dimensions, 
+%	\mbox{ $\min _{w_j : j \in I}\Vert Y - \sum _{j \in I} X_{\mathcal{G}_j}w_{\mathcal{G}_j} \Vert_2^2$}.	Much previous work has addressed the feature group selection problem. One popular approach is to extend Lasso \cite{lasso} to the group setting, e.g., Group Lasso\cite{group_lasso} balances the trade-off
+%by solving 
+%\mbox{$
+%  \min _{w \in \mathbb{R}^{D}} \Vert Y -
+%    Xw \Vert^2_2 + \lambda
+%    \sum _{j=1}^J \Vert w _{\mathcal{G}_j} \Vert _2$}. 
+%Group Lasso can be further extended to incorporate feature group costs in the group regularization constants\cite{classifier_cascade}. 
+
+%The sequencing problem can also be approached with ideas similar to "forward greedy selection", which evaluates the performance gain of a candidate feature group and greedily selects the one with the best marginal gain. Selecting based on the exact gains in performance, also known as Forward Regression (FR) \cite{FR}, often performs well.
+%However, since the algorithm computes $O(J^2)$ number of models, it is often prohibitively expensive to train with large number of candidates. One computational feasible method to approximate this exact greedy selection is Orthogonal Matching Pursuit (OMP) \cite{mp}, which chooses candidates that induce the steepest change in objective value. \cite{omp} proves that OMP discovers, in the absence of group structures, the true linear models, if they do exist. This result is then extended by \cite{gomp} and \cite{log_gomp} to handle feature groups. Both Lasso and OMP literature in feature selection, however, focus mostly on model recovery rather than the trade-off between feature computational costs and regression results. Hence our work addresses a closely related but different problem and achieves provable anytime prediction guarantees regardless of the true models. 

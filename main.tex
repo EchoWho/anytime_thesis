@@ -18,10 +18,11 @@
 %% $Id: elsarticle-template-1-num.tex 149 2009-10-08 05:01:15Z rishi $
 %% $URL: http://lenova.river-valley.com/svn/elsbst/trunk/elsarticle-template-1-num.tex $
 %%
-\documentclass[preprint,12pt]{elsarticle}
-\frenchspacing 
-\setlength{\pdfpagewidth}{8.5in}
-\setlength{\pdfpageheight}{11in}
+\documentclass[12pt]{report}
+\usepackage[utf8]{inputenc}
+%\frenchspacing 
+%\setlength{\pdfpagewidth}{8.5in}
+%\setlength{\pdfpageheight}{11in}
 
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
@@ -151,7 +152,7 @@
 
 
 
-\setcounter{secnumdepth}{5}
+%\setcounter{secnumdepth}{5}
 
 
 \newcommand{\fix}{\marginpar{FIX}}
@@ -223,92 +224,49 @@
 
 % \biboptions{}
 
-\journal{Journal Name}
+%\journal{Journal Name}
+
+\title{
+{Thesis Title}\\
+{\large Institution Name}
+}
+\author{Author Name}
+\date{Day Month Year}
 
 \begin{document}
 
-\begin{frontmatter}
-
-%% Title, authors and addresses
-
-\title{Unnecessarily Complicated Research Title}
-
-%% use the tnoteref command within \title for footnotes;
-%% use the tnotetext command for the associated footnote;
-%% use the fnref command within \author or \address for footnotes;
-%% use the fntext command for the associated footnote;
-%% use the corref command within \author for corresponding author footnotes;
-%% use the cortext command for the associated footnote;
-%% use the ead command for the email address,
-%% and the form \ead[url] for the home page:
-%%
-%% \title{Title\tnoteref{label1}}
-%% \tnotetext[label1]{}
-%% \author{Name\corref{cor1}\fnref{label2}}
-%% \ead{email address}
-%% \ead[url]{home page}
-%% \fntext[label2]{}
-%% \cortext[cor1]{}
-%% \address{Address\fnref{label3}}
-%% \fntext[label3]{}
 
 
-%% use optional labels to link authors explicitly to addresses:
-%% \author[label1,label2]{<author name>}
-%% \address[label1]{<address>}
-%% \address[label2]{<address>}
+\maketitle
 
-\author{John Smith}
 
-\address{California, United States}
+\chapter*{Abstract}
+Abstract placeholder
+ 
+\chapter*{Dedication}
+Dedication placeholder
+ 
+\chapter*{Declaration}
+Declaration placeholder
+ 
+\chapter*{Acknowledgements}
+I want to thank...
+ 
+\tableofcontents
 
-\begin{abstract}
-%% Text of abstract
-Suspendisse potenti. Suspendisse quis sem elit, et mattis nisl. Phasellus consequat erat eu velit rhoncus non pharetra neque auctor. Phasellus eu lacus quam. Ut ipsum dolor, euismod aliquam congue sed, lobortis et orci. Mauris eget velit id arcu ultricies auctor in eget dolor. Pellentesque suscipit adipiscing sem, imperdiet laoreet dolor elementum ut. Mauris condimentum est sed velit lacinia placerat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nullam diam metus, pharetra vitae euismod sed, placerat ultrices eros. Aliquam tincidunt dapibus venenatis. In interdum tellus nec justo accumsan aliquam. Nulla sit amet massa augue.
-\end{abstract}
-
-\begin{keyword}
-Science \sep Publication \sep Complicated
-%% keywords here, in the form: keyword \sep keyword
-
-%% MSC codes here, in the form: \MSC code \sep code
-%% or \MSC[2008] code \sep code (2000 is the default)
-
-\end{keyword}
-
-\end{frontmatter}
-
-%%
-%% Start line numbering here if you want
-%%
 \linenumbers
-
 \chapter{Anytime Linear Prediction}
 \input{\GOMPDIR/final.tex}
+
 \chapter{Streaming Gradient Boosting}
 \input{\SGBDIR/main.tex}
+
 \chapter{Anytime Neural Network}
 \input{\ANNDIR/AAAI-HuH.2508.tex}
+
 \chapter{Neural Network Search}
 \input{\NASDIR/main_conference.tex}
 
-
-%% The Appendices part is started with the command \appendix;
-%% appendix sections are then done as normal sections
-%% \appendix
-
-%% \section{}
-%% \label{}
-
-%% References
-%%
-%% Following citation commands can be used in the body text:
-%% Usage of \cite is as follows:
-%%   \cite{key}          ==>>  [#]
-%%   \cite[chap. 2]{key} ==>>  [#, chap. 2]
-%%   \citet{key}         ==>>  Author [#]
-
-%% References with bibTeX database:
 
 \bibliographystyle{natbib}
 \bibliography{1_gomp/final.bib}

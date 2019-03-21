@@ -64,3 +64,35 @@ and Theorem~\ref{thm:main} hold as they are.
 %  \caption{Cost Sensitive Group Orthogonal Matching Pursuit (G-OMP) for Generalized Linear Models}
 %  \label{algo:gomp_glm}
 %\end{algorithm}
+\begin{algorithm}[tb]
+\caption{Cost Sensitive Group Orthogonal Matching Pursuit For Generalized Linear Model}
+ \label{algo:gomp_glm}
+\begin{algorithmic}[1]
+	\STATE {\bfseries Input:} The data matrix $\XX = [ \textbf{f}_1, ..., \textbf{f}_D ] \in \R^{n \times D}$,
+    with group structures, such that for each group $g$,
+    $\XX^T_{g}\XX_{g} = I _{D_g}$.     
+    The cost $c(g)$ of each group $g$. 
+    The response matrix $\YY \in \{0, 1\}^{n \times P}$.
+    The link function $\nabla \phi$.
+    Regularization constant $\lambda$.
+	\STATE {\bfseries Output:} A sequence $((G_j, W_j))_j$, where 
+      $G_j = (g_1, g_2, ..., g_j)$ 
+    is the sequence of first $j$ selected feature groups, $g_1, g_2, ..., g_j$, and 
+      $W_j: P\times D$ restricted to features in $G_j$ 
+      is the associated coefficient matrix.
+    \STATE Set $G_0 = \emptyset$ to be an empty sequence.
+    \STATE Set $w(G_0) = \vec{0}$ to be a zero matrix of zero input size and $P$ output size.
+    \STATE Compute $C = X^TX$. 
+ \FOR {$j = 1,2,...,J$}
+ 	\STATE Set $W = W(G_{j-1})$.
+    \FOR {$g \notin G_{j-1}$}
+       \STATE Compute with Eq.~\ref{eq:glm_gradient}: 
+       	$\textbf{r}' = \nabla \textbf{r}(W) = \frac{1}{n} \sum _{i=1}^n (\nabla \phi(Wx^i) - y^i){x^i}^T + \lambda W$.
+    \ENDFOR
+    \STATE $g_{j} = \argmax \limits_{g = \mathcal{G}_1, ... , \mathcal{G}_J, g\notin G_{j-1}} 
+    \frac{\Vert \textbf{r}'_g \Vert_F^2}{ c(g) }$.
+   \STATE Append $g_j$ to the sequence: $G_{j} = G_{j-1} \oplus g_{j}$.
+   \STATE Compute $W(G_j) = \underset{W : \forall g \notin G_j W_g = \textbf{0} }{\arg \min} R(W) $.
+ \ENDFOR
+\end{algorithmic}
+\end{algorithm}

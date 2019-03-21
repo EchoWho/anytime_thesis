@@ -1,5 +1,5 @@
 \section{COST-SENSITIVE GREEDY METHOD}
-\label{sec:method}
+\label{sec:gomp_method}
 
 This section formally introduces our extensions to FR and OMP to 
 the group setting with costs. 
@@ -66,7 +66,6 @@ the union of its groups in notations such as $F(S)$, $w(S)$, $C_S$ and $b_S^S$.
 %$}
 %The objective function $F(S) \triangleq R(\emptyset) - R(S)$ is also known as the explained variance\footnote{Note that $F(S) \geq 0$ for all $S$, since $R(\emptyset)$ is equivalent to setting $w=0$ in solving the minimization in Equation~\ref{eq:min_orig_lr}, and thus, $R(\emptyset)$ upper-bounds $R(S)$ for all $S$.}, and our theoretical analysis provides a bound on our achieved explained variance by a constant factor of the optimal value at each time when we select a new feature group. 
  
-\label{sec:algo_description}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %% Algorithm statement %%
@@ -104,6 +103,32 @@ the union of its groups in notations such as $F(S)$, $w(S)$, $C_S$ and $b_S^S$.
 %  compute $w(G_J)$\;
 %\end{algorithm}
 
+\begin{algorithm}[tb]
+\caption{Cost Sensitive Group Orthogonal Matching Pursuit (CS-G-OMP)}
+ \label{algo:gomp_lm}
+\begin{algorithmic}[1]
+	\STATE {\bfseries Input:} The normalized feature matrix $X \in \R^{n \times D}$.
+ 	The normalized response vector $Y \in \mathbb{R}^{n}$, which has a zero mean and unit variance. 
+    Feature groups $\mathcal{G}_1, ... \mathcal{G}_J$ that partition $\{1,..,D\}$, and group costs $c(\mathcal{G}_j)$.
+   Regularization constant $\lambda$.
+	\STATE {\bfseries Output:} A sequence $G = g_1, g_2, ..., g_{J}$ of feature groups.
+   For each $j \leq J$, a coefficient  $w(G_j)$ for the features $G_j =g_1,..., g_j$. 
+    \STATE Set $G_0 = \emptyset$ to be an empty sequence.
+    \STATE Set $w(G_0) = \vec{0}$ to be a zero vector of zero length.
+    \STATE Compute $C = X^TX$. 
+ \FOR {$j = 1,2,...,J$}
+    \FOR {$g \notin G_{j-1}$}
+        \STATE Compute $b_g = \nabla _g F(G_{j-1}) = \frac{1}{n} X_g^T(Y-X_{G_{j-1}}w(G_{j-1}))$.
+        \label{algline:gomp_bg}
+    \ENDFOR
+    \STATE $g_{j} = \argmax \limits_{g = \mathcal{G}_1, ... , \mathcal{G}_J, g\notin G_{j-1}} \frac{b_g ^T (X_{g}^TX_g)^{-1}b_g}{ c(g) }$.
+   \STATE Append $g_j$ to the sequence: $G_{j} = G_{j-1} \oplus g_{j}$.
+   \STATE Compute $w(G_j) = \frac{1}{n}C_{G_{j}}^{-1}X_{G_{j}}^TY$.
+ \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+
 
 In Algorithm~\ref{algo:gomp_lm}, we present Cost-Sensitive Group Orthogonal Matching Pursuit (CS-G-OMP), which learns a near-optimal sequencing of the
 feature groups for anytime linear predictions. 
@@ -121,10 +146,38 @@ the costs of feature generation dominate the computations of linear predictions.
 we can then report the latest prediction $\hat{y}$. 
 
 The learning procedure extending from Forward Regression is similar to
-Algorithm~\ref{algo:gomp_lm}: we compute the linear models 
+Algorithm~\ref{algo:gomp_lm}, as stated in Algorithm~\ref{algo:gfr_lm}: we compute the linear models 
 $w(G_{j-1} \oplus g)$ at line 4 instead of the 
-gradients $b_g$ and replace the selection criterion $\frac{b_g ^T (X_{g}^TX_g)^{-1}b_g}{ c(g) }$ at line 5 with the marginal gain in explained 
+gradients $b_g$ and replace the selection criterion $\frac{b_g ^T (X_{g}^TX_g)^{-1}b_g}{ c(g) }$ at line~\ref{algline:gomp_bg} with the marginal gain in explained 
 variance per unit cost, $\frac{F(G_{j-1} \oplus g) - F(G_{j-1}) }{c(g)}$. We call this cost-sensitive FR extension as CS-G-FR.
+
+
+\begin{algorithm}[tb]
+\caption{Cost Sensitive Group Forward Regression (CS-G-OMP)}
+ \label{algo:gfr_lm}
+\begin{algorithmic}[1]
+	\STATE {\bfseries Input:} The normalized feature matrix $X \in \R^{n \times D}$.
+ 	The normalized response vector $Y \in \mathbb{R}^{n}$, which has a zero mean and unit variance. 
+    Feature groups $\mathcal{G}_1, ... \mathcal{G}_J$ that partition $\{1,..,D\}$, and group costs $c(\mathcal{G}_j)$.
+   Regularization constant $\lambda$.
+	\STATE {\bfseries Output:} A sequence $G = g_1, g_2, ..., g_{J}$ of feature groups.
+   For each $j \leq J$, a coefficient  $w(G_j)$ for the features $G_j =g_1,..., g_j$. 
+    \STATE Set $G_0 = \emptyset$ to be an empty sequence.
+    \STATE Set $w(G_0) = \vec{0}$ to be a zero vector of zero length.
+    \STATE Compute $C = X^TX$. 
+ \FOR {$j = 1,2,...,J$}
+    \FOR {$g \notin G_{j-1}$}
+        \STATE Compute $w = w(G_{j-1} \oplus g) =  \frac{1}{n}C_{G_{j-1} \oplus g}^{-1}X_{G_{j-1} \oplus g}^TY$.
+        \STATE Compute $F(G_{j-1} \oplus g) = \frac{1}{n}(\Vert Y \Vert ^2 - \Vert Y - X_{G_{j-1} \oplus g} w \Vert ^2) 
+        	- \lambda \Vert w \Vert ^2$. 
+    \ENDFOR
+    \STATE $g_{j} = \argmax \limits_{g = \mathcal{G}_1, ... , \mathcal{G}_J, g\notin G_{j-1}} 
+	\frac{F(G_{j-1} \oplus g) - F(G_{j-1})}{c(g)}$.
+   \STATE Append $g_j$ to the sequence: $G_{j} = G_{j-1} \oplus g_{j}$.
+   \STATE Record $w(G_j) = \frac{1}{n}C_{G_{j}}^{-1}X_{G_{j}}^TY$.
+ \ENDFOR
+\end{algorithmic}
+\end{algorithm}
 
 
 Before we theoretically analyze our greedy methods

@@ -116,6 +116,7 @@
 %\end{abstract}
 
 \section{Introduction}
+\label{sec:nas_introduction}
 
 Deep neural networks have achieved state-of-the-art performance on many large scale supervised learning tasks across many domains like computer vision, natural language processing and audio and speech-related tasks. But most gains have come from manually designed architectures which have inspired further improvements via careful experimentation coupled with significant experience and intuition of a skilled practitioner. Such skilled practitioners usually have significant domain knowledge of the task at hand that allows them to make rapid progress. But the fact remains that the task of designing a deep network architecture from scratch remains mostly a game of trial and error. As a consequence there has been significant effort in the community to address this issue via attempts to design algorithms that automatically find good architectures and informally referred to as AutoDNN and/or Neural Architecture Search (NAS) \cite{nas}. 
 
@@ -123,16 +124,19 @@ NAS literature can be broadly categorized along three main dimensions: 1. search
 
 In this work we propose a method for growing networks from small to large where we opportunistically add layers inspired by the ``cascade correlation'' work of \cite{cascadecorr}. We term our approach \Petridish. \Petridish can be used with both macro and cell-search spaces. Importantly \Petridish achieves better performance on macro search spaces than any other NAS algorithm which considers macro search results. Furthermore the final results achieved by \Petridish macro are comparable to those of the current best cell-search methods including that of \Petridish cell-search methods.
 
-We summarize our contribution as follows.
 \begin{itemize}
-\item We propose an approach to increase complexity of neural networks during training for architecture search, where we first expand models with random connections, and then trim the connections with feature selection techniques to keep only the most effective connections. 
-\item The proposed approach can be applied to both cell and macro search, and we show that macro search can achieve better performance vs. any other current macro search method and is competitive when compared to commonly adopted cell search. In particular, we achieve 2.86\% searching on CIFAR10 using 4.8M parameters.
-\item The competitive performance of \Petridish macro neural architecture search opens up NAS literature to consider search techniques that don't require architecture design domain knowledge injection.
-\item \Petridish directly expand models on the lower convex hull of error rate vs. flops and is hence able to naturally produce a gallery of cost-effective models which is critical for production serving needs. 
+\item We propose an approach to increase complexity of neural networks during training iteratively. We alternate between two phases. The first expands the model with potential shortcut connections and train them jointly. The second phase trim the previous potential connections using feature selection and continue training the model. 
+\item The proposed approach can be applied to both improve a small repeatable pattern, called cell, and improve the macro network architecture directly, unlike most popular approaches that only focus on cells. This opens up neural architecture search to fields where no domain knowledge of the macro structure exists. 
+\item On cell-search, the proposed method finds a model that achieves 2.61\% error rate on CIFAR10 using 2.9M parameters within 5 GPU-days. 
+%The model achieves \% error rate on ILSVRC2012 using M parameters and M multi-adds.
+\item On macro-search, the proposed method finds a model that achieves 2.83\% error rate on CIFAR10 using 2.2M parameters within 5 GPU-days. 
+%The model achieves \% error rate on ILSVRC2012 using M parameters and M multi-adds.
+\item The proposed approach can warm start from existing networks, leveraging previous training results. Furthermore, it directly expands models on the lower convex hull of error rate vs. flops and is hence able to naturally produce a gallery of cost-effective models which is critical for production serving needs. 
 \end{itemize}
 
 
 \section{Background and References}
+\label{sec:nas_background}
 %\begin{itemize}
 %    \item Cascade-correlation
 %    \item NAS. (RL. EA. Gradient based.) 
@@ -374,6 +378,7 @@ $d_{max} = 16$ to prevent searching overly complex models.
 A finalized and trained model from Sec.~\ref{sec:candidate_finalize} is evaluated on a validation set, and is added to the parent pool if it is on the lower convex hull of the plot of test-time computation versus validation error rates. We also remove from the parent pool the models that are no longer on the lower convex hull, when the hull is changed by new models. 
     
 \section{Experiment}
+\label{sec:nas_experiment}
 
 %%%%%%%%%%%%%%%%%%%%%%%% 
 % Experimental questions
@@ -676,6 +681,8 @@ Combining the intuitions of Sec.~\ref{sec:candidate_parent_intuition}, we have t
 \end{align}
 
 
+\section{Bi-level optimization}
+\label{sec:nas_bi_level_optimization}
 
 
 %\end{document}

@@ -104,11 +104,11 @@ Group &
 \begin{figure}
 \centering
 \subfloat[Training Time OMP vs. FR (\Grain)]{
-  \includegraphics[width=0.37\textwidth,height=3.5cm]{\GOMPDIR/img/set1_exp4.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_exp4.png}
 }
-
+~
 \subfloat[Training Time OMP vs. FR (\YahooLTR)]{
-  \includegraphics[width=0.37\textwidth,height=3.5cm]{\GOMPDIR/img/set1_size10_exp4.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_size10_exp4.png}
 }
 \caption{The training time vs. the number of feature groups selected with two algorithms: CS-G-FR and 
 CS-G-OMP. CS-G-OMP achieves a 8x and 20x overall training time speed-up 
@@ -140,12 +140,12 @@ split into five 100k sets, and the remaining 10k are used for validation. We rep
 \begin{figure}[t]
 \centering
 \subfloat[Plateau Effect and $\alpha$-Stopping Costs]{
- \includegraphics[width=0.40\textwidth,height=3.8cm]{\GOMPDIR/img/timeliness.png}
+ \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/timeliness.png}
  \label{fig:timeliness_a}
 }
-
+~
 \subfloat[Importance of Costs (CS-G-OMP vs. G-OMP)]{
- \includegraphics[width=0.40\textwidth,height=3.8cm]{\GOMPDIR/img/set1_size10_exp2.png}
+ \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_size10_exp2.png}
  \label{fig:cost_vs_no_cost}
 }
 \label{fig:timeliness}
@@ -207,11 +207,11 @@ This behavior is expected from data-sets whose feature groups contain correlated
 \begin{figure}
 \centering
 \subfloat[Group Whiten vs. No-Whiten (\Grain)]{
-  \includegraphics[width=0.4\textwidth,height=3.8cm]{\GOMPDIR/img/set1_exp1.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_exp1.png}
 }
-
+~
 \subfloat[Group Whiten vs. No-Whiten (\YahooLTR)]{
-  \includegraphics[width=0.4\textwidth,height=3.8cm]{\GOMPDIR/img/set1_size10_exp1.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_size10_exp1.png}
 }
 \caption{Explained Variance vs. Feature Cost curves on \Grain\, (a) and \YahooLTR\, (b)  comparing group whitening with no group whitening. The curves stop at 0.97-stopping cost.}
 \label{fig:whiten_vs_no_whiten}
@@ -224,7 +224,7 @@ This behavior is expected from data-sets whose feature groups contain correlated
 
 This section compares CS-G-OMP and CS-G-FR, along with 
 variants of these two methods and the baseline, Sparse. 
-We formulated the variant of CS-G-OMP, \textit{single}, in Section~\ref{sec:method} and it intuitively chooses feature groups of the best single feature dimension per group cost. Our experiments show that this modification degrades prediction performance of CS-G-OMP. 
+We formulated the variant of CS-G-OMP, \textit{single}, in Section~\ref{sec:gomp_method} and it intuitively chooses feature groups of the best single feature dimension per group cost. Our experiments show that this modification degrades prediction performance of CS-G-OMP. 
 %If we enforce linear prediction, cascade design by \cite{cai:15} can be reduced to a greedy method whose criteria is the G-OMP criteria subtracted by a function of the feature cost. However, this method requires careful tuning of the 
 Since FR directly optimizes the objective at each step, we expect CS-G-FR to perform the best and use its curve to compute the \textbf{Oracle} curve as an approximate to the best achievable performance.
 
@@ -240,19 +240,19 @@ and quantitatively confirm the analysis above. Since \Grain\, and \YahooLTR\, ar
 \begin{figure}
 \centering
 \subfloat[FR vs. OMP vs. Sparse (\Grain)]{
-  \includegraphics[width=0.40\textwidth,height=4cm]{\GOMPDIR/img/set1_exp3.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_exp3.png}
 }
-
+~
 \subfloat[FR vs. OMP vs. Sparse (\YahooLTR)]{
-  \includegraphics[width=0.40\textwidth,height=4cm]{\GOMPDIR/img/set1_size10_exp3.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_size10_exp3.png}
 }
 
 \subfloat[FR vs. OMP vs. Sparse (\Grain)]{
-  \includegraphics[width=0.40\textwidth,height=4cm]{\GOMPDIR/img/set1_exp5.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_exp5.png}
 }
-
+~
 \subfloat[FR vs. OMP vs. Sparse (\YahooLTR)]{
-  \includegraphics[width=0.40\textwidth,height=4cm]{\GOMPDIR/img/set1_size10_exp5.png}
+  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_size10_exp5.png}
 }
 
 \caption{(a),(b): Explained Variance vs. Feature Cost curves on 

@@ -1,5 +1,5 @@
 \section{THEORETICAL ANALYSIS}
-\label{sec:proof}
+\label{sec:gomp_proof}
 
 This section proves that CS-G-FR and CS-G-OMP 
 produce near-optimal explained variance $F$ at budgets 
@@ -61,28 +61,6 @@ We defer these two proofs to the appendix and note that
 $M=m$ with our choice of $R$. 
 
 
-
-%%%%%%%%%%%%%
-%%%%%%  Theorem.
-%Let $G = g_1, g_2, ... , g_{J}$ be the sequence of feature groups that our CS-G-OMP selects. Let $S$ be any sequence of feature groups. For any $B$ such that $B = \sum _{j=1}^{L} c(g_j)$ for some $L$, let $G_{\angleb{B}}$ be the first $L$ feature groups of $G$, $g_1, g_2, ..., g_{L}$. We denote $S_{\angleb{K}} = s_1, s_2, ... $ to be any competing sequences of cost $K$, that is, $\sum _{j=1.. J : \mathcal{G}_j \subseteq S_{\angleb{K}}} c(\mathcal{G}_j) = K$. For any two selected feature group sequence $G$ and $S$, we define $b^G_S$ as the gradient of the objective $F(G)$ with respect to coefficient of  group $S$, $w_S$; components of $b^G_S$ can be computed using $b^G_g$ defined in Equation~\ref{eq:bG}.  We define matrix $C$ to be $C \triangleq \frac{1}{n}X^TX + \lambda I$, which is the regularized covariance matrix of features. Let the minimum eigenvalue of $C$ be $\lambda _{min}(C) = \frac{1}{n}\lambda_{min}(X^TX) + \lambda > 0$.
-
-%Then our main results below bounds $F(G_{\angleb{B}})$, the explained variance achieved using proposed features, with a constant factor of $F(S_{\angleb{K}})$, 
-%the explained variance of any competing sequence with budget $K$. 
-
-
- 
-%The proof of the theorem relies on Lemma~\ref{lemma:main}, which mimics a classical result in submodular maximization literature such as Equation 8 of \cite{submodular}. From Lemma~\ref{lemma:main}, the proof is a standard technique in approximate submodular maximization literature, which we defer to the appendix. 
-
-%%%%%%%%%%%%%
-%%%%%%%% Lemma approximately submodularity
-%\begin{lemma}[main]
-%  There exists constant $\gamma = \frac{\lambda _{min}(C)}{1+\lambda} > 0$ such that for all $S$ and total cost $K$,  and all $j=1,2,..., J$, 
-%  \mbox{$
-%    F(S_{\angleb{K}}) - F(G_{j-1}) \leq \frac{K}{\gamma}
-%      \lbrack \frac{F(G_j) - F(G_{j-1})}{c(g_j)} \rbrack.
-%  $}
-%  \label{lemma:main}
-%\end{lemma}
 
 %%%%%%%%%%%%% 
 %%%%%%%   Lemma Strong smoothness
@@ -173,6 +151,7 @@ groups are large.
 
 
 \section{BI-CRITERIA APPROXIMATION AT ALL BUDGETS}
+\label{sec:gomp_bi_criteria}
 
 Our analysis so far only bounds algorithm performance at 
 budgets when new items are selected. However, an ideal analysis
@@ -290,17 +269,17 @@ We will analyze Doubling Algorithm with the following assumption, called \textit
 \begin{figure}
 \centering
 \subfloat[Before $F$ is computed, we have no output or bounds.]{
-  \includegraphics[width=0.49\textwidth]{\GOMPDIR/img/all-budget-bad.png}
+  \includegraphics[width=0.8\textwidth]{\GOMPDIR/img/all-budget-bad.png}
   \label{fig:all-budget-bad}
 }
 
 \subfloat[Our constraint $c(g_{j+1}) \leq c(G_j)$ induces a smoother cost increase. ] {
-  \includegraphics[width=0.49\textwidth]{\GOMPDIR/img/all-budget-good.png}
+  \includegraphics[width=0.8\textwidth]{\GOMPDIR/img/all-budget-good.png}
   \label{fig:all-budget-good}
 }
 
 \subfloat[Illustration of Doubling Algorithm Cost Constraint]{
-\includegraphics[width=0.45\textwidth]{\GOMPDIR/img/doubling-algo.png}
+\includegraphics[width=0.8\textwidth]{\GOMPDIR/img/doubling-algo.png}
   \label{fig:doubling-algo}
 }
 
@@ -310,21 +289,27 @@ than greedy algorithm with no cost constraints (a).}
 \end{figure}
 
 
-%\begin{algorithm}[t]
-%  \caption{Doubling Algorithm}
-%  \label{alg:greedy.doubling}
-%  
-%  \SetKwInOut{Input}{input}
-%    \Input{ objective function $F$, elements $X$, minimum cost $c_{\textrm{min}}$}
-%    
-%    Let $g_1 = \underset{x \in X,\ c(x) \le c_{\textrm{min}}}{\argmax} \frac{F(\{x\})}{c(x)}$; 
-%    Let $G_1 = g_1$ \;
-%    \For{$j = 2,\ldots$} {
-%    Let $g_j = \underset{x \in X \setminus G_{j-1},\ c(x) \le c(G_{j-1})}{\argmax} \;
-%      \frac{F(G_{j-1} \oplus \{x\}) - F(G_{j-1})}{c(x)}$ \;
-%    Let $G_j = G_{j-1} \oplus \{g_j\}$ \;
-%    }
-%\end{algorithm}
+\begin{algorithm}[tb]
+\caption{Forward Regression with Doubling Modification}
+ \label{alg:greedy.doubling}
+\begin{algorithmic}[1]
+	\STATE {\bfseries Input:} Objective function $F$, elements $X$, minimum cost $c_{\textrm{min}}$.
+	\STATE {\bfseries Output:} A sequence $G = g_1, g_2, ..., g_{J}$ of elements.
+   For each $j \leq J$, a parameter  $w(G_j)$ for the elements $G_j =g_1,..., g_j$ for maximizing $F$. 
+    \STATE Set $g_1 = \underset{x \in X,\ c(x) \le c_{\textrm{min}}}{\argmax} \frac{F(\{x\})}{c(x)}$.
+    \STATE Set $G_1 = [g_1]$ as a one-element sequence.
+    \STATE Set $w(G_1)$ be the parameter associated with $g_1$ to optimize $F$.
+ \FOR {$j = 2,...,J$}
+    \FOR {$g \notin G_{j-1}$, $c(g) \le c(G_{j-1})$}
+        \STATE Compute $F(G_{j-1} \oplus g)$ and the associated parameter $w(G_{j-1} \oplus g)$.  
+    \ENDFOR
+    \STATE $g_{j} = \argmax \limits_{g = \mathcal{G}_1, ... , \mathcal{G}_J, g\notin G_{j-1}, c(g) \le c(G_{j-1})} 
+	\frac{F(G_{j-1} \oplus g) - F(G_{j-1})}{c(g)}$.
+   \STATE Append $g_j$ to the sequence: $G_{j} = G_{j-1} \oplus g_{j}$.
+   \STATE Record $w(G_j) = w(G_{j-1} \oplus g)$.
+ \ENDFOR
+\end{algorithmic}
+\end{algorithm}
 
  
 \begin{definition} 

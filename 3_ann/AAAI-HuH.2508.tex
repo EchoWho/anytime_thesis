@@ -101,7 +101,7 @@
 %
 
 \section{Introduction}
-\label{sec:introduction}
+\label{sec:ann_introduction}
 
 Recent years have seen advancement in visual recognition tasks
 by increasingly accurate convolutional neural networks, from AlexNet~\cite{alexnet} and VGG~\cite{vgg}, to ResNet~\cite{resnet}, ResNeXt~\cite{resnext}, and DenseNet~\cite{densenet}. 
@@ -129,7 +129,7 @@ Anytime predictors are different from cascaded predictors~\cite{cascade,xu:14,ca
 
 This work studies how to convert well-known DNN architectures to produce competitive anytime predictions.  
 We form anytime neural networks (\anns) by appending auxiliary predictions and losses to DNNs, as we will detail in Sec.~\ref{sec:ann} and Fig.~\ref{fig:ann}. Inference-time prediction then can be stopped at the latest prediction layer that is within the budget. Note that this work deals with the case where it is \textbf{not known apriori} where the interrupt during inference time will occur. 
-We define the optimal at each auxiliary loss as the result from training the \ann only for that loss to convergence. Then our objective is to have near-optimal final predictions and competitive early ones.  Near-optimal final accuracy is imperative for anytime predictors, because, as demonstrated in Fig.~\ref{fig:sieve_small_vs_const_large}, accuracy gains are often exponentially more expensive as model sizes grow, so that reducing 1\% error rate could take 50\% extra computation. Unfortunately, existing anytime predictors often optimize the anytime losses in static weighted sums~\cite{supervisednet,feedbacknet,msdense} that poorly optimize final predictions, as we will show in Sec.~\ref{sec:multi_objective} and Sec.~\ref{sec:experiment_questions}.
+We define the optimal at each auxiliary loss as the result from training the \ann only for that loss to convergence. Then our objective is to have near-optimal final predictions and competitive early ones.  Near-optimal final accuracy is imperative for anytime predictors, because, as demonstrated in Fig.~\ref{fig:sieve_small_vs_const_large}, accuracy gains are often exponentially more expensive as model sizes grow, so that reducing 1\% error rate could take 50\% extra computation. Unfortunately, existing anytime predictors often optimize the anytime losses in static weighted sums~\cite{supervisednet,feedbacknet,msdense} that poorly optimize final predictions, as we will show in Sec.~\ref{sec:multi_objective} and Sec.~\ref{sec:ann_experiment_questions}.
 
 Instead, we optimize the losses in an \textbf{adaptive} weighted sum, where the weight of a loss is inversely proportional to the empirical mean of the loss on the training set. Intuitively, this normalizes losses to have the same scale, so that the optimization leads each loss to be about the same relative to its optimal. We provide multiple theoretical considerations to motivate such weights.
 First of all, when the losses are mean square errors, our approach is maximizing the likelihood of a model where the prediction targets have Gaussian noises. Secondly, inspired by the maximum likelihood estimation, we optimize the model parameters and the loss weights jointly, with log-barriers on the weights to avoid the trivial solution of zero weights. Finally, we find the joint optimization equivalent to optimizing the geometric mean of the expected training losses, an objective that treats the relative improvement of each loss equally. Empirically, we show on multiple models and visual recognition data-sets that the proposed adaptive weights outperform natural, non-adaptive weighting schemes as follows.
@@ -146,7 +146,7 @@ In summary our contributions are:
 
 
 \section{Related Works}
-\label{sec:background}
+\label{sec:ann_background}
 
 
 \textbf{Meta-algorithms for anytime and budgeted prediction.}
@@ -242,7 +242,7 @@ where $B_i$ is the weight of the loss $\ell_i$. We call the choices of $B_i$ \te
 %%%%%%%%%%%%%%
 
 
-\textbf{Qualitative weight scheme comparison.} Before we formally introduce our proposed adaptive weights, we first shed light on how existing static weights suffer. We experiment with a ResNet of 15 basic residual blocks on CIFAR100~\cite{cifar} data-set (See Sec.~\ref{sec:experiment_questions} for data-set details). An anytime predictor is attached to each residual block, and we estimate the optimal performance (OPT) in training cross entropy of predictor $i$ by training a network that has weight only on $\ell_i$ to convergence. Then for each weight scheme we train an \ann to measure the relative increase in training loss at each depth $i$ from the OPT. In Fig.~\ref{fig:loss_cifar100}, we observe that the intuitive \const scheme has high relative losses in late layers. This indicates that there is not enough weights in the late layers, though losses have the same $B_i$.  We also note that balancing the weights is non-trivial. For instance, if we put half of the total weights in the final layer and distribute the other half evenly, we get the ``Half-End" scheme. As expected, the final loss is improved, but this is at the cost of significant increases of early training losses. In contrast, the adaptive weight scheme that we propose next (\adaloss), achieves roughly even relative increases in training losses automatically, and is much better than the \const scheme in the late layers.
+\textbf{Qualitative weight scheme comparison.} Before we formally introduce our proposed adaptive weights, we first shed light on how existing static weights suffer. We experiment with a ResNet of 15 basic residual blocks on CIFAR100~\cite{cifar} data-set (See Sec.~\ref{sec:ann_experiment_questions} for data-set details). An anytime predictor is attached to each residual block, and we estimate the optimal performance (OPT) in training cross entropy of predictor $i$ by training a network that has weight only on $\ell_i$ to convergence. Then for each weight scheme we train an \ann to measure the relative increase in training loss at each depth $i$ from the OPT. In Fig.~\ref{fig:loss_cifar100}, we observe that the intuitive \const scheme has high relative losses in late layers. This indicates that there is not enough weights in the late layers, though losses have the same $B_i$.  We also note that balancing the weights is non-trivial. For instance, if we put half of the total weights in the final layer and distribute the other half evenly, we get the ``Half-End" scheme. As expected, the final loss is improved, but this is at the cost of significant increases of early training losses. In contrast, the adaptive weight scheme that we propose next (\adaloss), achieves roughly even relative increases in training losses automatically, and is much better than the \const scheme in the late layers.
 
 %%%%%%%%%%%%%%
 
@@ -312,7 +312,7 @@ We defer the proofs to the appendix.
 %               EXPERIMENTS
 %#############################  ############################
 \section{Experiments}
-\label{sec:experiment_questions}
+\label{sec:ann_experiment_questions}
 
 We list the key questions that our experiments aim to answer.
 \begin{itemize}

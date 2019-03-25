@@ -6,7 +6,7 @@
  the methods into OMP, FR and Oracle family: e.g., ``Single" in the G-CS-OMP family means G-CS-OMP-Single, and ``FR" in the Oracle family means the oracle curve derived from G-FR. }
 \label{tab:grain_auc} 
 \begin{center}
-\resizebox{0.7\textwidth}{!}{
+\resizebox{\textwidth}{!}{
 \begin{tabular}{cccc|c|cc|c}
 \multicolumn{4}{c|}{CS-G-OMP-Variants} &
 \multicolumn{1}{c|}{CS-G-FR} &
@@ -38,7 +38,7 @@
 \caption{Test time 0.99-Timeliness measurement of different methods on \YahooLTR.}
 \label{tab:yahoo_auc} 
 \begin{center}
-\resizebox{0.7\textwidth}{!}{
+\resizebox{\textwidth}{!}{
 \begin{tabular}{c|cccc|c|cc|c}
 Group &
 \multicolumn{4}{c|}{CS-G-OMP-Variants} &
@@ -101,7 +101,7 @@ Group &
 \end{table*}
 
 
-\begin{figure}
+\begin{figure}[ht!]
 \centering
 \subfloat[Training Time OMP vs. FR (\Grain)]{
   \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_exp4.png}
@@ -137,7 +137,7 @@ split into five 100k sets, and the remaining 10k are used for validation. We rep
 
 \subsection{EVALUATION METRIC, BASELINE AND ORACLE}
 \label{sec:timeliness}
-\begin{figure}[t]
+\begin{figure}[ht!]
 \centering
 \subfloat[Plateau Effect and $\alpha$-Stopping Costs]{
  \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/timeliness.png}
@@ -204,7 +204,7 @@ The objective vs. cost curve qualitatively shows that group whitening consistent
 This behavior is expected from data-sets whose feature groups contain correlated features, e.g., group whitening effectively prevents selection step $(*)$ from overestimating the predictive power of feature groups of repeated good features. Table~\ref{tab:grain_auc} and Table~\ref{tab:yahoo_auc} demonstrate quantitatively the consistent better timeliness performance of CS-G-OMP over that of CS-G-OMP-no-whiten. 
 
 
-\begin{figure}
+\begin{figure}[ht!]
 \centering
 \subfloat[Group Whiten vs. No-Whiten (\Grain)]{
   \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_exp1.png}
@@ -237,7 +237,7 @@ and quantitatively confirm the analysis above. Since \Grain\, and \YahooLTR\, ar
 %We note that on the two real-world data-sets, Doubling Algorithm acts identically to CS-G-FR after few initial selections, an expected result because real-world feature effectiveness does not grow exponentially in cost, so that the most cost-efficient features become available to Doubling after few steps. 
 
 
-\begin{figure}
+\begin{figure}[ht!]
 \centering
 \subfloat[FR vs. OMP vs. Sparse (\Grain)]{
   \includegraphics[width=0.44\textwidth,keepaspectratio]{\GOMPDIR/img/set1_exp3.png}

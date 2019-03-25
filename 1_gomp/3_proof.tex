@@ -9,7 +9,7 @@ where features are selected. The main challenge of our analysis is to prove Lemm
 %the performance difference, $F(S) - F(G_{j-1})$, between 
 %a competing sequence $S$ and the current greedy sequence $G_{j-1}$. 
 which is a common stepping stone in 
-submodular maximization analysis, e.g., Equation 8 in \citep{submodular}. The main Theorem~\ref{thm:main} follows from the lemma by standard techniques, which we defer to the appendix. 
+submodular maximization analysis, e.g., Equation 8 in \citep{submodular}. The main Theorem~\ref{thm:main} follows from the lemma by standard techniques, which we defer to the Section~\ref{sec:gomp_proof_II}. 
 
 \begin{lemma}[main]
   Let $G_j$ be the first $j$ feature groups selected by our greedy algorithm. There exists a constant $\gamma = \frac{\lambda^* + \lambda}{1 +\lambda} > 0$ such that for any sequence $S$, total cost $K$, and indices $j=1,2,..., J$, 
@@ -57,7 +57,7 @@ Lemma~\ref{lemma:main} for CS-G-FR is standard if we follow proofs in \citep{str
 However, we present a proof of 
 Lemma~\ref{lemma:main} for CS-G-OMP without approximate submodularity to achieve the same constant $\gamma$. 
 This proof in turn uses Lemma~\ref{lemma:smoothness} and Lemma~\ref{lemma:convexity}, whose proofs are based on the Taylor expansions of the regularized risk $\mathcal{R}[f_S]=R(S)$, a $M$-strongly smooth and $m$-strongly convex loss functional of predictors $f(x) = w^T x$.
-We defer these two proofs to the appendix and note that 
+We defer these two proofs to the additional details in Section~\ref{sec:gomp_proof_II} and note that 
 $M=m$ with our choice of $R$. 
 
 
@@ -368,7 +368,7 @@ two cases by comparing $c(g_{k+2})$ and $c(G_{k})$.
 (Case 2.1) If $c(g_{k+2}) \geq c(G_{k})$, then 
 $c(G_K) - c(G_{k+1}) \geq c(g_{k+2}) \geq c(G_k)$. 
 Since $c(G_{k+1}) \leq 2 c(G_k)$ and $c(x) > c(G_k)$, 
-we have $c(G_K) - c(G_{k+1}) \geq \frac{B}{2} - 2c(G_k)$.
+we have $c(G_K) - c(G_{k+1}) \geq \frac{B}{2} - 2c(G_k)$. \\
 So \mbox{$c(G_K) - c(G_{k+1}) \geq \max ( c(G_k), \frac{B}{2} - 2c(G_k) ) \geq \frac{B}{6}$}. 
 Thus, using the same proof techniques as in case 1, we can analyze the ratio between $\Delta_{k+1}$ and $\Delta_K$, and have:
 \mbox{$
@@ -383,7 +383,7 @@ For an item $y$, let
 \mbox{$r(y^j)= \frac{F(G_{j} \cup \{ y \}) - F(G_j)}{c(y)}$} 
 be the improvement rate of item $y$ at $G_j$. 
 Then we have \mbox{$r(g_{k+1}^k) > r(g_{k+2}^k)$} and \mbox{$r(g_{k+2}^{k+1}) > r(x^{k+1})$}. 
-Since the objective function is increasing, we have 
+Since the objective function is increasing, we have \\
 \mbox{$r(x^k) c(x) \leq r(x^{k+1})c(x) + r(g_{k+1}^k)c(g_{k+1})$},
 so that 
 \mbox{$r(x^k) \leq r(x^{k+1}) + r(g_{k+1}^k) \frac{c(g_{k+1})}{c(x)}$}.

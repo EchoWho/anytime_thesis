@@ -457,7 +457,7 @@ The key idea for proving Theorem~\ref{them:non_smooth_strongly_convex} is to com
 
 
 \section{EXPERIMENTS}
-\begin{figure*}[t]
+\begin{figure}[th!]
     \centering
     \subfloat[][a]{
         \includegraphics[width=0.49\textwidth,keepaspectratio]{\SGBDIR/figs/slice_vs_learners_regret.pdf}
@@ -478,7 +478,7 @@ The key idea for proving Theorem~\ref{them:non_smooth_strongly_convex} is to com
     }
     \caption{Average regret of \algshort with regression trees with various depths on SLICE and A9A datasets.}
     \label{fig:regret}
-\end{figure*}
+\end{figure}
 
 We demonstrate the performance of our \algname using the following UCI datasets~\citep{Lichman:2013}: YEAR, ABALONE, SLICE, and A9A~\citep{adult} as well as the  MNIST~\citep{mnist} dataset. If available, we use the given train-test split of each data-set. Otherwise, we create a random 90\%-10\% train-test split. 
 
@@ -509,18 +509,18 @@ Finally, Fig.~\ref{fig:regret_samps} shows the convergence of the average regret
 \subsection{Batch Boosting vs. Streaming Boosting}
 
 
-\begin{figure*}[t!]
+\begin{figure}[th!]
     \centering
     \subfloat[abalone N=8][a]{
         \includegraphics[trim={1cm 0.6cm 1cm 1cm},clip,keepaspectratio,height=2.75cm]{\SGBDIR/figs/abalone.pdf}
         \label{fig:abalone}
     }
-    
+    ~
     \subfloat[year N=10][b]{
         \includegraphics[trim={1cm 0.6cm 1cm 1cm},clip,keepaspectratio,height=2.75cm]{\SGBDIR/figs/year.pdf}
         \label{fig:year}
     }
-
+	~
     \subfloat[slice N=8][c]{
         \includegraphics[trim={1cm 0.6cm 1cm 1cm},clip,keepaspectratio,height=2.75cm]{\SGBDIR/figs/slice.pdf}
         \label{fig:slice}
@@ -530,12 +530,12 @@ Finally, Fig.~\ref{fig:regret_samps} shows the convergence of the average regret
         \includegraphics[trim={1cm 0.6cm 1cm 1cm},clip,keepaspectratio,height=2.75cm]{\SGBDIR/figs/a9a.pdf}
         \label{fig:a9a}
     }
-
+	~
     \subfloat[mnist N=10][e]{
         \includegraphics[trim={1cm 0.6cm 1cm 1cm},clip,keepaspectratio,height=2.75cm]{\SGBDIR/figs/mnist.pdf}
         \label{fig:mnist}
     }
-
+	~
     \subfloat[abalone with varied N][f]{
         \includegraphics[trim={1cm 0.6cm 1cm 1cm},clip,keepaspectratio,height=2.75cm]{\SGBDIR/figs/abalone_vary_n.pdf}
         \label{fig:abalone_vary_n}
@@ -544,7 +544,7 @@ Finally, Fig.~\ref{fig:regret_samps} shows the convergence of the average regret
     %Blue dots highlight performances of batch gradient boosting when weak learners are added.}
     \label{fig:convg}
     \vspace{-5pt}
-\end{figure*}
+\end{figure}
 
 
 %The online implementation of batch boosting is the same as the classic batch gradient boosting \cite{friedman2001greedy}, except that we train each weak learner using stochastic gradient descent until it converges.
@@ -580,7 +580,7 @@ Table~\ref{table:validation} records the test error (square error for regression
 
 \begin{table}[h!]
 	\centering
-    \resizebox{0.45\textwidth}{!}{
+    \resizebox{0.9\textwidth}{!}{
     \begin{tabular}{@{} l l l l l  @{} }
     \toprule
     & \textbf{Base} & \textbf{GB} & \textbf{\algshort}\\
@@ -647,10 +647,6 @@ In this paper, we present \algshort for online convex programming. By introducin
 
 Though our \algshort algorithm currently utilizes the procedure of gradient descent to combine the weak learners’ predictions, our online weak learning definition and the design of square loss for weak learners leave open the possibility to leverage other gradient-based update procedures such as accelerated gradient descent, mirror descent, and adaptive gradient descent for combining the weak learners' predictions. %As noted earlier, the batch algorithm converges faster initially while \algshort generally surpasses the batch as it can update all the parameters simultaneously. This result suggests an intermediate algorithm that trades off batch and online learning -- the first few weak learners are initialized in batch and then the rest are added incrementally while fine tuning all the parameters following \algshort. 
 
-\section*{Acknowledgements}
-\vspace{-5pt}
-This work was conducted in part through collaborative participation in the Robotics Consortium sponsored by the U.S Army Research  Laboratory  under  the  Collaborative  Technology  Alliance Program, Cooperative Agreement W911NF-10-2-0016. This work is also supported in part by National Science Foundation Graduate Research Fellowship Grant No. DGE-1252522.
-%The authors also thank Geoff Gordon for valuable discussions.
 
 
 
@@ -663,9 +659,10 @@ This work was conducted in part through collaborative participation in the Robot
 %\newpage
 %\onecolumn
 %\appendix
-\textbf{Supplementary Material for Gradient Boosting on Stochastic Data Streams}
+\section{Supplementary Details for Gradient Boosting on Stochastic Data Streams}
+\label{sec:sgb_appendix}
 
-\section{Proof of Proposition~\ref{prop:edge_example}}
+\subsection{Proof of Proposition~\ref{prop:edge_example}}
 \begin{proof}
 Given that a no-regret online learning algorithm $\mathcal{A}$ running on sequence of loss $\|h(x_t) - y_t\|^2$, we have can easily see that Eqn.~\ref{eq:learnable} holds as:
 \begin{align}
@@ -725,7 +722,7 @@ Apply union bound for the above two high probability statements, we get with pro
 
 
 
-\section{Proof of Theorem~\ref{them:smooth_strongly_convex}}
+\subsection{Proof of Theorem~\ref{them:smooth_strongly_convex}}
 \label{sec:proof_smooth_strongly_convex}
 
 %\subsection{Derivation of Eqn.~\ref{eq:strong_convexity_property}}
@@ -750,7 +747,7 @@ l(y) \geq l(x) + \nabla l(x)(y-x) + \frac{\lambda}{2}\|y - x\|^2.
 \Rightarrow & \|\nabla l(x)\|^2 \geq 2\lambda (l(x) - l(x^*)).
 \end{align}
 
-\subsection{Proofs for Lemma~\ref{lemma:from_weak_learning}}
+\subsubsection{Proofs for Lemma~\ref{lemma:from_weak_learning}}
 \begin{proof}
 Complete the square on the left hand side (LHS) of Eqn.~\ref{eq:weak_learner_eq}, we have:
 \begin{align}
@@ -764,7 +761,7 @@ Complete the square on the left hand side (LHS) of Eqn.~\ref{eq:weak_learner_eq}
 \end{align} 
 \end{proof}
 
-\subsection{Proof of Theorem~\ref{them:smooth_strongly_convex}}
+\subsubsection{Proof of Theorem~\ref{them:smooth_strongly_convex}}
 We need another lemma for proving theorem~\ref{them:smooth_strongly_convex}:
 \begin{lemma}
 \label{lemma:helper_1}
@@ -826,7 +823,8 @@ Hence, we can see that there exist a $\eta = \frac{\gamma}{\beta(8-4\gamma)}$, s
 
 Let us take expectation on both sides of the inequality~\ref{eq:before_exp}. The left hand side of inequality~\ref{eq:before_exp} becomes:
 \begin{align}
-&\frac{1}{T}\mathbb{E}\Delta_N = \mathbb{E}\frac{1}{T}\big[\sum_{t=1}^T (\ell_t(y_t^N) - \ell_t(f^*(x_t)))\big] =\frac{1}{T} \mathbb{E}\big[\sum_{t=1}^T\ell_t(-\mu\sum_{i=1}^N h_t^{i}(x_t))\big] - \frac{1}{T}\mathbb{E}_{(\ell_t,x_t)\sim D}[\ell_t(f^*(x_t))] \nonumber\\
+&\frac{1}{T}\mathbb{E}\Delta_N = \mathbb{E}\frac{1}{T}\big[\sum_{t=1}^T (\ell_t(y_t^N) - \ell_t(f^*(x_t)))\big] \\
+&=\frac{1}{T} \mathbb{E}\big[\sum_{t=1}^T\ell_t(-\mu\sum_{i=1}^N h_t^{i}(x_t))\big] - \frac{1}{T}\mathbb{E}_{(\ell_t,x_t)\sim D}[\ell_t(f^*(x_t))] \nonumber\\
 & = \frac{1}{T}\sum_{i=1}^T\mathbb{E}_t\big[\ell_t(-\mu\sum_{i=1}^N h_t^i(x_t))\big] - \mathbb{E}_{(\ell,x)\sim D}\ell(f^*(x)),
 \end{align} where the expectation is taken over the randomness of $x_t$ and $\ell_t$. Note that $h_t^i$ only depends on $x_1,\ell_1,...,x_{t-1},\ell_{t-1}$. We also define $\mathbb{E}_t$ as the expectation over the randomness of $x_t$ and $\ell_t$ at step $t$ conditioned on $x_{1}, \ell_1, ..., x_{t-1},\ell_{t-1}$. Since $\ell_t, x_t$ are sampled i.i.d from $D$, we can simply write $\mathbb{E}_t[\ell_t(-\mu\sum_{i=1}^N h_t^i(x_t))]$ as $\mathbb{E}_t[\ell(-\mu\sum_{i=1}^N h_t^i(x))]$. Now the above inequality can be simplied as:
 \begin{align}
@@ -837,7 +835,7 @@ Let us take expectation on both sides of the inequality~\ref{eq:before_exp}. The
 Now use the fact that $1/T\mathbb{E}\Delta_N \leq 2B(1-\frac{\gamma^2\lambda}{16\beta})^N$, we prove the theorem.
 \end{proof}
 
-\section{Proof of Theorem~\ref{them:non_smooth_strongly_convex}}
+\subsection{Proof of Theorem~\ref{them:non_smooth_strongly_convex}}
 \label{sec:proof_non_smooth_strongly_convex}
 
 \begin{lemma}
@@ -1044,7 +1042,7 @@ Dividing both sides by $NT$ and rearrange terms, we get:
 For stochastic setting, we can prove it by using similar proof techniques (e.g., take expectation on both sides of Eqn.~\ref{eq:first_part} and use Jensen inequality) that we used for proving  theorem~\ref{them:smooth_strongly_convex}. 
 \end{proof}
 
-\section{Counter Example for
+\subsection{Counter Example for
 Alg.~\ref{alg:online_gradient_boost}}
 \label{sec:counter_example}
 In this section, we provide an counter example where we show that Alg.~\ref{alg:online_gradient_boost} cannot guarantee to work for non-smooth loss. We set $y\in\mathbb{R}^2$, and design a loss function $\ell_t(y) = 2|y_{[1]}|+|y_{[2]}|$, where $y_{[i]}$ stands for the i'th entry of the vector $y$, for all time step $t$. The subgradient of this non-smooth loss is $[2,1]^T$, or $[2,-1]^T$, or $[-2,1]^T$, or $[-2,-1]^T$, depending on the position of $y$. We restricted the weak hypothesis class $\mathcal{H}$ to consist of only two types of hypothesis: hypothesis $h(x) = [\alpha, 0]^T$, or hypothesis $h(x) = [0,\alpha]^T$, where $\alpha \in [-2,2]$. We can show that given a sequence of training examples $\{(x_{\tau}, g_{\tau})\}_{\tau=1}^t$, where $g_t$ is the one of the gradient from the total four possible subgradient of $\ell_t$, the hypothesis that minimizes the accumulated square loss $\sum_{\tau=1}^t (h(x_{\tau}) - g_{\tau})^2$ is going to be the type of $h(x) = [\alpha, 0]^T$.
@@ -1052,7 +1050,7 @@ In this section, we provide an counter example where we show that Alg.~\ref{alg:
 Now we consider using Follow the Leader (FTL) as a no-regret online learning algorithm for each weak learner. Based on the above analysis, we know that no matter what the sequence of training examples each weak learner has received as far, the weak leaners always choose the hypothesis with type $h(x) = [\alpha,0]^T$ from $\mathcal{H}$. So, for every time step $t$, if we initialize $y_t^0 = [a,b]^T$, where $a>0$ and $b>0$, then the output $y_t^N$ (computed from Line 8 in Alg.1) always have the form of $y_t^N = [\eta, b]$, where $\eta\in\mathbb{R}$. Namely, all weak learners' prediction only moves $y_t$ horizontally and it will never be moved vertically. But note that the optimal solution is located at $[0,0]^T$. Since for all $t$, $y_{t_{[2]}}^N$ is also $b$ constant away from $0$, the total regret accumulates linearly as $bT$, regardless of how many weak learners we have. 
 
 
-\section{Details of  Implementation}
+\subsection{Details of  Implementation}
 \label{sec:implementation}
 \subsection{Binary Classification}
 For binary classification, following \citep{friedman2001greedy}, let us define feature $x\in\mathbb{R}^n$, label $u\in\{-1,1\}$. With $x_t$ and $u_t$, the loss function $\ell_t$ is defined as:
@@ -1082,7 +1080,7 @@ The another loss we tried is the hinge loss:
 
 
 
-\subsection{Multi-class Classification}
+\subsubsection{Multi-class Classification}
 Follow the settings in \citep{friedman2001greedy}, for multi-class classification problem, let us define feature $x\in\mathbb{R}^n$, and label information $u\in\mathbb{R}^k$, as a one-hot representation, where $u[i] = 1$ ($u[i]$ is the i-th element of $u$), if the example is labelled by $i$, and $u[i] = 0$ otherwise. The loss function $\ell_t$ is defined as:
 \begin{align}
 \ell_t(y) = -\sum_{i=1}^k u_t[i]\ln \frac{\exp(y[i])}{\sum_{j=1}^k\exp(y[j])},
@@ -1090,7 +1088,7 @@ Follow the settings in \citep{friedman2001greedy}, for multi-class classificatio
 
 
 
-\section{Proof of Proposition~\ref{prop:edge_example}}
+\subsection{Proof of Proposition~\ref{prop:edge_example}}
 \begin{proof}
 Given that a no-regret online learning algorithm $\mathcal{A}$ running on sequence of loss $(h(x_t) - y_t)^2$, we have can easily see that Eqn.~\ref{eq:learnable} holds as:
 \begin{align}
@@ -1146,7 +1144,7 @@ Since we have $\min_{h\in\mathcal{H}}\sum_{t=1}^T(h(x) - y_t)^2 \leq\sum_{t=1}^T
 %\end{document}
 
 
-\section{Proof of Proposition~\ref{prop:edge_example}}
+\subsection{Proof of Proposition~\ref{prop:edge_example}}
 \begin{proof}
 Given that a no-regret online learning algorithm $\mathcal{A}$ running on sequence of loss $(h(x_t) - y_t)^2$, we have can easily see that Eqn.~\ref{eq:learnable} holds as:
 \begin{align}

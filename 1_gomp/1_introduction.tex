@@ -26,8 +26,13 @@ R(G_{\angleb{B}}) :=   \min _{w}
 \end{align}
 where $X_{G_{\angleb{B}}}$ contains features in $G_{\angleb{B}}$, $w$ is the associated linear predictor coefficient, and $\lambda$ is a regularizing constant.
 Equivalently, if we assume that the $y^i$'s have unit variance and zero mean by normalization, we can maximize the explained variance, 
-$    \label{eq:exp-var}
-    F(G_{\angleb{B}}) := \frac{1}{2n} Y^TY - R(G_{\angleb{B}}). $
+\begin{align}    
+\label{eq:exp-var}
+    F(G_{\angleb{B}}) &:= \frac{1}{2n} Y^TY - R(G_{\angleb{B}}) \\
+     &=  \frac{1}{2n} Y^TY - 
+     \min _{w} \big(
+    \frac{1}{2n} \Vert Y - X_{{G_{\angleb{B}}}} {w} \Vert_2^2 + \frac{\lambda}{2} \Vert w\Vert_2^2 \big)
+\end{align}
 
 The above optimization problem is closest to the problem of subset selection 
 for regression \citep{kemp}, which selects at most $k$ features to optimize a 
@@ -126,7 +131,7 @@ learn cascades.
 Another branch of anytime prediction methods uses boosting. It outputs as results partial sums of the ensemble \citep{speedboost} or averages of randomly sampled weak learners \citep{reyzin:11}. Our greedy methods can be 
 viewed as a gradient boosting scheme by treating each feature 
 as a weak learner. 
-Some works approach anytime prediction with feature transformations \citep{xu:12, xu:13b} and learn cost-sensitive, non-linear transformation of features for linear classification. Similarly, \cite{weinberger09feature} hashes high dimensional features to low dimensional subspaces. These approaches operate on readily-computed features, which is orthogonal to our problem setting. 
+Some works approach anytime prediction with feature transformations \citep{xu:12, xu:13b} and learn computation-aware, non-linear transformation of features for linear classification. Similarly, \cite{weinberger09feature} hashes high dimensional features to low dimensional subspaces. These approaches operate on readily-computed features, which is orthogonal to our problem setting. 
 \cite{timeliness} models the anytime prediction as a Markov Decision Process and learns a policy of applying intermediate learners and computing features through reinforcement learning.
 
 \paragraph*{Contributions}

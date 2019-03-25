@@ -23,6 +23,7 @@
 \frenchspacing 
 \setlength{\pdfpagewidth}{8.5in}
 \setlength{\pdfpageheight}{11in}
+\usepackage[margin=1.5in]{geometry}
 
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
@@ -239,7 +240,7 @@
 
 
 \chapter*{Abstract}
-Abstract placeholder
+This work considers the problem of
 
 \chapter*{Dedication}
 Dedication placeholder
@@ -249,6 +250,25 @@ Declaration placeholder
 
 \chapter*{Acknowledgements}
 I want to thank...
+
+\section*{Co-authors}
+Alexander Grubb, Wen Sun, Arun Venkatraman, Debadeepta Dey, John Langford, 
+
+\section*{Advisor/Mentors}
+ Martial Hebert, J. Andrew Bagnell, Rich Caruana 
+
+\section*{Others}
+Lynetta Miller for scheduling me to meet with Martial as regular as physically possible, and finding us the room for defense.
+
+
+
+\section*{Acknowledgements} 
+This work was conducted in part through collaborative participation in the Robotics Consortium sponsored by the U.S Army Research Laboratory under the Collaborative Technology Alliance Program, Cooperative Agreement W911NF-10-2-0016. 
+
+\section*{Acknowledgements}
+This work was conducted in part through collaborative participation in the Robotics Consortium sponsored by the U.S Army Research  Laboratory  under  the  Collaborative  Technology  Alliance Program, Cooperative Agreement W911NF-10-2-0016. This work is also supported in part by National Science Foundation Graduate Research Fellowship Grant No. DGE-1252522.
+%The authors also thank Geoff Gordon for valuable discussions.
+
 
 \tableofcontents
 
@@ -260,19 +280,19 @@ I want to thank...
 \label{chapter:thesis_introduction}
 \input{thesis_introduction.tex}
 
-\chapter{Anytime Linear Prediction}
+\chapter{Anytime Linear Prediction via Feature Group Sequencing}
 \label{chapter:anytime_linear}
 \input{\GOMPDIR/final.tex}
 
-\chapter{Anytime Neural Network}
+\chapter{Anytime Neural Network via Adaptive Loss Balancing}
 \label{chapter:ann}
 \input{\ANNDIR/AAAI-HuH.2508.tex}
 
-\chapter{Streaming Gradient Boosting}
+\chapter{Training Gradient Boosting on Stochastic Data Streams}
 \label{chapter:sgb}
 \input{\SGBDIR/main.tex}
 
-\chapter{Neural Network Search}
+\chapter{Growing Neural Networks via Gradient Boosting on Intermediate Layers}
 \label{chapter:nas}
 \input{\NASDIR/main_conference.tex}
 

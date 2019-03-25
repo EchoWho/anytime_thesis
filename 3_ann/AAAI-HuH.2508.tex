@@ -100,7 +100,7 @@
 %
 %
 
-\section{Introduction}
+\section{INTRODUCTION}
 \label{sec:ann_introduction}
 
 Recent years have seen advancement in visual recognition tasks
@@ -145,7 +145,7 @@ In summary our contributions are:
 
 
 
-\section{Related Works}
+\section{RELATED WORKS}
 \label{sec:ann_background}
 
 
@@ -171,7 +171,7 @@ These works are orthogonal to ours, because they train a separate model for each
 %               Methods
 %#########################################################
 
-\section{Optimizing Anytime Predictors}
+\section{OPTIMIZING ANYTIME PREDICTORS in NETWORKS}
 
 %\subsection{Training Anytime Neural Networks via Multi-objective Optimization}
 \label{sec:ann}
@@ -288,7 +288,7 @@ This concludes our theoretical considerations for \adaloss.
 
 
 
-\section{Sequence of Exponentially Deepening Anytime Neural Networks (EANN)}
+\section{ENSEMBLE of EXPONENTIALLY DEEPENING ANYTIME NEURAL NETWORKS}
 \label{sec:eann}
 
 
@@ -311,7 +311,7 @@ We defer the proofs to the appendix.
 %#############################  ############################
 %               EXPERIMENTS
 %#############################  ############################
-\section{Experiments}
+\section{EXPERIMENTS}
 \label{sec:ann_experiment_questions}
 
 We list the key questions that our experiments aim to answer.
@@ -368,6 +368,7 @@ We evaluate the weights on multiple models including ResNet~\cite{resnet} and De
 \end{table}
 
 \begin{table}
+\centering
         \begin{tabular}{c|cccc}
         \hline
          & 1/4 & 1/2 & 3/4 & 1 \\
@@ -397,36 +398,36 @@ We evaluate the weights on multiple models including ResNet~\cite{resnet} and De
 
 
 
-\begin{figure*}[t]
+\begin{figure*}[ht!]
     \centering
     
     \subfloat[Res\anns on CIFAR10]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_cifar10.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_cifar10.png}
         \label{fig:adaloss_vs_const_of_double_cost_cifar10}
     }
     ~
     \subfloat[Res\anns on CIFAR100]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_cifar100.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_cifar100.png}
         \label{fig:adaloss_vs_const_of_double_cost_cifar100}
     }
-    ~
+    
     \subfloat[Res\anns on SVHN]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_svhn.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_svhn.png}
         \label{fig:adaloss_vs_const_of_double_cost_svhn}
     }
-    
+    ~
     \subfloat[Res\anns on ILSVRC]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_adaloss_vs_const_resnet.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_adaloss_vs_const_resnet.png}
         \label{fig:ilsvrc_adaloss_vs_const_of_double_cost}
     }
-    ~
+    
     \subfloat[MSDNet on ILSVRC]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_adaloss_vs_const_msdnet.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_adaloss_vs_const_msdnet.png}
         \label{fig:ilsvrc_adaloss_vs_const_of_double_cost_msdnet}    
     }
     ~
     \subfloat[\anns comparison on ILSVRC]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_compare_models.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_compare_models.png}
         \label{fig:ilsvrc_compare_models}    
     }
     
@@ -444,17 +445,17 @@ Since comparing the weight schemes requires evaluating \anns at multiple budget 
 \begin{figure*}[t]
     \centering
     \subfloat[EANNs on CIFAR100]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio]{\ANNDIR/cifar100_adaloss_eann_b2.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/cifar100_adaloss_eann_b2.png}
         \label{fig:eann_f}
     }
     ~
     \subfloat[EANN on ILSVRC]{
-        \includegraphics[width=0.32\linewidth, keepaspectratio]{\ANNDIR/eann_comparisons.png}
+        \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/eann_comparisons.png}
         \label{fig:compare_ensemble}
     }
-    ~
+    
     \subfloat[AdaLoss Weights on three data-sets]{
-    \includegraphics[width=0.32\linewidth, keepaspectratio]{\ANNDIR/adaloss_weights.png}
+    \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/adaloss_weights.png}
     \label{fig:adaloss_weights}
     }
     \caption{ \textbf{(a)} EANN performs better if the \anns use \adaloss instead of \const. 
@@ -506,12 +507,10 @@ As the accuracy is not saturated by Res\ann26, the delay appears significant. He
 
 In Fig.~\ref{fig:adaloss_weights}, we plot the final \adaloss weights of the same Res\ann model (25,32) on CIFAR10, CIFAR100, and SVHN to study the effects of the data-sets on the weights. We observe that from the easiest data-set, SVHN, to the hardest, CIFAR100, the weights are more concentrated on the final layers. This suggests that \adaloss can automatically decide that harder data-sets need more concentrated final weights to have near-optimal final performance, whereas on easy data-sets, more efforts are directed to early predictions. Hence, \adaloss weights may provide information for practitioners to design and choose models based on data-sets.
 
-\section{Conclusion and Discussion}
+\section{CONCLUSION and DISCUSSION}
 This work devises simple adaptive weights, \adaloss, for training anytime predictions in DNNs. We provide multiple theoretical motivations for such weights, and show experimentally that adaptive weights enable small \anns to outperform large \anns with the commonly used non-adaptive constant weights. Future works on adaptive weights includes examining \adaloss for multi-task problems and investigating its ``first-order'' variants that normalize the losses by individual gradient norms to address unknown offsets of losses as well as the unknown scales. We also note that this work can be combined with orthogonal works in early-exit budgeted predictions~\cite{cascade_nn,adaptivenn} for saving average test computation. 
 
 
-\section*{Acknowledgements} 
-This work was conducted in part through collaborative participation in the Robotics Consortium sponsored by the U.S Army Research Laboratory under the Collaborative Technology Alliance Program, Cooperative Agreement W911NF-10-2-0016. 
 
 %
 %%%%%%%%%%%%%%%%%%% BIB %%%%%%%%%%%%%%%%%%%%%%%%
@@ -526,7 +525,7 @@ This work was conducted in part through collaborative participation in the Robot
 
 
 
-\section{Sketch of Proof of Proposition~\ref{prop:eann}}
+\section{PROOF of PROPOSITION~\ref{prop:eann}}
 \begin{proof}
 For each budget consumed $x$, we compute the cost $x'$ of the optimal that EANN is competitive against. The goal is then to analyze the ratio $C = \frac{x}{x'}$. 
 The first ANN in EANN has depth 1. The optimal and the result of EANN are the same. Now assume EANN is on depth $z$ of ANN number $n+1$ for $n\geq 0$, which has depth $b^{n}$. \\
@@ -586,7 +585,7 @@ The inequality is tight at $b = 1 + \sqrt{2}$. With large $n$, since almost all 
 
 
 
-\section{Implementation Details of \anns}
+\section{IMPLEMENTATION DETAILS of \anns}
 \label{sec:implementation_ann}
 
 
@@ -607,7 +606,7 @@ We successfully reproduced the published results to 24.3\% error rate on ILSVRC 
 
 
 
-\section{Additional Details of \adaloss}
+\section{IMPLEMENTATION DETAILS of \adaloss}
 
 \label{sec:implementation_adaloss}
 

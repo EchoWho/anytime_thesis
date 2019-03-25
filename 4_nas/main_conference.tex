@@ -1,121 +1,11 @@
-%%%%%%%%% ICML 2018 EXAMPLE LATEX SUBMISSION FILE %%%%%%%%%%%%%%%%%
-%
-%\documentclass{article}
-%
-%% Recommended, but optional, packages for figures and better typesetting:
-%\usepackage{microtype}
-%\usepackage{graphicx}
-%
-%\usepackage{subfig}
-%\usepackage{color}
-%
-%% hyperref makes hyperlinks in the resulting PDF.
-%% If your build breaks (sometimes temporarily if a hyperlink spans a page)
-%% please comment out the following usepackage line and replace
-%% \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
-%\usepackage{hyperref}
-%
-%% Attempt to make hyperref and algorithmic work together better:
-%\newcommand{\theHalgorithm}{\arabic{algorithm}}
-%
-%% Use the following line for the initial blind version submitted for review:
-%\usepackage{sty_bst/icml}
-%\usepackage{booktabs} % for professional tables
-%\usepackage{amsmath}
-%\usepackage{amssymb}
-%\usepackage{multirow}
-%\usepackage{xspace}
-%
-%
-%% hyperref makes hyperlinks in the resulting PDF.
-%% If your build breaks (sometimes temporarily if a hyperlink spans a page)
-%% please comment out the following usepackage line and replace
-%% \usepackage{icml2018} with \usepackage[nohyperref]{icml2018} above.
-%\usepackage{hyperref}
-%
-%\newcommand{\todo}[1]{\textcolor{red}{#1}}
-%\newcommand{\dd}[1]{\textcolor{blue}{#1}}
-%\newcommand{\stopforward}{\textrm{sf}}
-%\newcommand{\stopgradient}{\textrm{sg}}
-%\newcommand{\petridishhard}{Isolated\xspace}
-%\newcommand{\petridishsoft}{Joint\xspace}
-%\newcommand{\Petridish}{Petridish\xspace}
-%\newcommand{\PetridishCP}{Petridish-CP\xspace}
-%\newcommand{\PetridishWS}{Petridish-WS\xspace}
-%
-%
-%% The \icmltitle you define below is probably too long as a header.
-%% Therefore, a short form for the running title is supplied here:
-%%\icmltitlerunning{Submission and Formatting Instructions for ICML 2018}
-%
-%\begin{document}
-%
-%\twocolumn[
-%\icmltitle{Guided Network Growth for Neural Architecture Search}
-%
-%% It is OKAY to include author information, even for blind
-%% submissions: the style file will automatically remove it for you
-%% unless you've provided the [accepted] option to the icml2018
-%% package.
-%
-%% List of affiliations: The first argument should be a (short)
-%% identifier you will use later to specify author affiliations
-%% Academic affiliations should list Department, University, City, Region, Country
-%% Industry affiliations should list Company, City, Region, Country
-%
-%% You can specify symbols, otherwise they are numbered in order.
-%% Ideally, you should not use this facility. Affiliations will be numbered
-%% in order of appearance and this is the preferred way.
-%\icmlsetsymbol{equal}{*}
-%
-%\begin{icmlauthorlist}
-%\icmlauthor{Aeiau Zzzz}{equal,to}
-%\icmlauthor{Bauiu C.~Yyyy}{equal,to,goo}
-%\icmlauthor{Cieua Vvvvv}{goo}
-%\icmlauthor{Iaesut Saoeu}{ed}
-%\icmlauthor{Fiuea Rrrr}{to}
-%\icmlauthor{Tateu H.~Yasehe}{ed,to,goo}
-%\icmlauthor{Aaoeu Iasoh}{goo}
-%\icmlauthor{Buiui Eueu}{ed}
-%\icmlauthor{Aeuia Zzzz}{ed}
-%\icmlauthor{Bieea C.~Yyyy}{to,goo}
-%\icmlauthor{Teoau Xxxx}{ed}
-%\icmlauthor{Eee Pppp}{ed}
-%\end{icmlauthorlist}
-%
-%\icmlaffiliation{to}{Department of Computation, University of Torontoland, Torontoland, Canada}
-%\icmlaffiliation{goo}{Googol ShallowMind, New London, Michigan, USA}
-%\icmlaffiliation{ed}{School of Computation, University of Edenborrow, Edenborrow, United Kingdom}
-%
-%\icmlcorrespondingauthor{Cieua Vvvvv}{c.vvvvv@googol.com}
-%\icmlcorrespondingauthor{Eee Pppp}{ep@eden.co.uk}
-%
-%% You may provide any keywords that you
-%% find helpful for describing your paper; these are used to populate
-%% the "keywords" metadata in the PDF but will not be shown in the document
-%\icmlkeywords{Machine Learning, ICML}
-%
-%\vskip 0.3in
-%]
-%
-%% this must go after the closing bracket ] following \twocolumn[ ...
-%
-%% This command actually creates the footnote in the first column
-%% listing the affiliations and the copyright notice.
-%% The command takes one argument, which is text to display at the start of the footnote.
-%% The \icmlEqualContribution command is standard text for equal contribution.
-%% Remove it (just {}) if you do not need this facility.
-%
-%%\printAffiliationsAndNotice{}  % leave blank if no need to mention equal contribution
-%\printAffiliationsAndNotice{\icmlEqualContribution} % otherwise use the standard text.
-%
+
 %\begin{abstract}
 %When developing predictors for machine learning applications, practitioners often want to have simple and working predictors early and continue to improve them with available computational resources. 
 %In this work, we propose a neural architecture search (NAS) algorithm that iteratively augments existing networks by adding shortcut connections and layers. At each iteration, we greedily select among the most cost-efficient models a parent model, and insert into it a number of candidate layers.  To learn which combination of additional layers to keep,  we simultaneously train their parameters and select the most promising candidates via feature selection techniques. The selected candidates are then jointly trained with the parent model.  Within 15 GPU-days, the proposed network growth NAS algorithm (\Petridish) can already find a model on CIFAR-10 that achieves 2.79\% error rate using 2.8M parameters.  We also transfer the model to ILSVRC2012, and it achieves 25.4\% top-1 error rate using 6.2M parameters and 810M multiply-adds. 
 %Furthermore, unlike recent studies of NAS that almost exclusively focus on the small search space of repeatable network modules (cells), this work also shows that a direct search among the more general networks (macro) can also find cost-effective models when macro search is allowed to start with the same initial models as cell search does. 
 %\end{abstract}
 
-\section{Introduction}
+\section{INTRODUCTION}
 \label{sec:nas_introduction}
 
 Deep neural networks have achieved state-of-the-art performance on many large scale supervised learning tasks across many domains like computer vision, natural language processing and audio and speech-related tasks. But most gains have come from manually designed architectures which have inspired further improvements via careful experimentation coupled with significant experience and intuition of a skilled practitioner. Such skilled practitioners usually have significant domain knowledge of the task at hand that allows them to make rapid progress. But the fact remains that the task of designing a deep network architecture from scratch remains mostly a game of trial and error. As a consequence there has been significant effort in the community to address this issue via attempts to design algorithms that automatically find good architectures and informally referred to as AutoDNN and/or Neural Architecture Search (NAS) \cite{nas}. 
@@ -135,7 +25,7 @@ In this work we propose a method for growing networks from small to large where 
 \end{itemize}
 
 
-\section{Background and References}
+\section{BACKGROUND and REFERENCES}
 \label{sec:nas_background}
 %\begin{itemize}
 %    \item Cascade-correlation
@@ -155,7 +45,121 @@ The work of \citep{nas,NASCell} renewed interest in NAS in recent times. Their m
 \cite{Liu2018DARTSDA} proposed a novel method based on bilevel optimization~\citep{bilevel_opt} termed as Differentiable Architecture Search (DARTS) which relaxes the originally discrete optimization problem to a continuous one and maintains two sets of continuous parameters: 1. The (architecture) parameters over the layer types and 2. The regular parameters of the network itself for each layer type. This is optimized in an alternating fashion where first the architecture parameters are trained alternated by the parameters of the layers of each type. Discrete architectures are then backed out by just selecting the architecture parameters which have the maximum value and discarding others. DARTS achieves impressive results on cell-search space with short search times.
 \cite{Elsken2018EfficientMN, CaiPathLevel} proposed an alternative insight to speed up search by incrementally evolving models from existing cost-effective models. In particular,~\cite{Elsken2018EfficientMN} explore expanding the Pareto-frontier, a set of points that do not have strict superior points, of the parameter-versus-accuracy plot to find parameter-efficient models. We refer the reader to the excellent survey article by \cite{Elsken2018NeuralAS} for more details on this rapidly evolving field. 
 
-\section{Method}
+\section{NEURAL ARCHITECTURE SEARCH as an OPTIMIZATION}
+
+Given a data sample $x$ with label $y$, a neural network architecture $\alpha$ with parameters $w$ produces 
+a prediction $\hat{y}(x ; \alpha, w)$ and suffers a prediction loss $\ell(\hat{y}(x ; \alpha, w), y)$.
+The expected training loss is then 
+\begin{align}
+\mathcal{L}(\alpha, w) = \mathbb{E} _{x, y \sim \mathcal{D}} [ \ell(\hat{y}(x ; \alpha, w), y) ] ,
+\end{align}
+where $\mathcal{D}$ is the distribution of the training data. 
+Then the problem of neural architectures search can be formulated as a bi-level optimization~\citep{bilevel_opt}
+of both the network architecture $\alpha$ and the model parameters $w$ under the expected training loss $\mathcal{L}$ 
+as follows.
+\begin{align}
+\min _{\alpha} \mathcal{L} (\alpha, w(\alpha)),
+\quad
+s.t. \quad w(\alpha) = \argmin _w \mathcal{L} (\alpha, w) 
+\quad and \quad c(\alpha) \leq K,
+\label{eq:bilevel_nas}
+\end{align}
+where $c(\alpha)$ represents the computational cost of the architecture, and $K$ is some constant. 
+
+We formalize $\alpha$ as a set of discrete decisions on which operations to include in an architecture.
+Let $x_1, x_2,...,$ be intermediate layers, and $x_0 = x$ is the input. The possible connections 
+are triples $(x_{i}, x_{j}, op)$ for each $i < j$ and each possible operations $op$ such as conv and pool. 
+Each intermediate layer $x_i$ also has a choice on a merge operation to choose how multiple connections 
+into $x_i$ are merged together. The last $x_i$ that has an input is used to produce a prediction 
+$\hat{y}(x; \alpha, w)$. 
+Hence, the architecture variable $\alpha$ encompasses the decisions of 
+which of these possible connections exist and how the operations are merged. In this work, we hold the 
+merge operation a constant in the networks and use ablation study to make the choice. 
+We focus on the search over the choices of the connections. 
+
+Before delving into a proposed approach, we first draw an interesting connection of Eq.~\ref{eq:bilevel_nas}
+to a problem that we already considered in early chapters, anytime linear prediction.
+In fact, we note that anytime linear prediction, whose optimization formulation follows, is a special case
+of the optimization problem in Eq.~\ref{eq:bilevel_nas}. 
+\begin{align}
+&\min _{\alpha} \frac{1}{2n} \Vert Y - X_{\alpha} w(\alpha) \Vert ^2 + \frac{\lambda}{2} \Vert w \Vert ^2 \\
+&s.t. \quad w(\alpha) = (\frac{1}{n}X_{\alpha}^TX_{\alpha} + \lambda I)^{-1} \frac{1}{n} X_{\alpha}Y 
+\quad and \quad c(\alpha) \leq K,
+\label{eq:bilevel_gomp}
+\end{align}
+where $X \in \mathcal{R}^{n \times d}$ is the feature matrix of the $n$ samples of $d$-dimensional features,
+$Y \in \mathcal{R}^n$ is the regression targets, and $X_{\alpha}$ selects the features included in $\alpha$.
+
+This observation then should then both indicate the difficulty of NAS problem and provide some insight on
+how we may extend feature selection algorithms for NAS. 
+Even with the analytic form of $w(\alpha)$, the feature selection problem in Eq.~\ref{eq:bilevel_gomp} 
+is still NP-hard and requires approximation methods. 
+When $w(\alpha)$ has to be computed via optimization, such as in generalized linear prediction
+and neural network, the greedy approximation methods that we studied in early chapters become 
+too computational expensive. 
+As a result, a cost-effective NAS algorithm must approximate in both $\alpha$ and $w(\alpha)$, 
+and exploit special conditions of NAS. 
+
+From this observation we can also draw parallel between the NAS algorithms and 
+feature selection algorithms. For instance, the early NAS works such as~\citep{nas,Real2017EvoNet}
+solves $w(\alpha)$ for each $\alpha$ independently, and as a result, these work require
+thousands of GPU-days. Such approaches are similar to 
+applying reinforcement learning and evolutionary algorithm to feature selection: 
+we eventually will discover the best subset of features to select, but at a high training cost.
+In contrast, the more recent works~\citep{Pham2018EfficientNA,Liu2018DARTSDA} train all possible
+networks at the same time by training the super-graph that is the union of all possible architectures within 
+a certain size limit. 
+Then they train at the same time a selection procedure to select the most promising 
+sub-graph from the super-graph. Such procedures draw parallel to backward elimination 
+and sparse optimization approach to feature selection, 
+where the irrelevant features are iteratively removed or gradually down-weighted. 
+
+While the backward methods are attractive in NAS because they organize all possible networks 
+compactly in a single super-graph to be trained at the same time, they also may suffer 
+in general NAS problems, where we may not know all possible operations 
+in advance and there may be a large number of possible operations and a 
+large number of required intermediate layers. These conditions may cause the backward methods to fail, as 
+it becomes impossible to fit the super-graph compactly to train all possibility at once.
+In contrast, forward methods for feature selection, where
+features are gradually added into the model, is much more popular in the feature selection
+literature, because they build on the few actual relevant features, and furthermore, 
+there are much more forward methods with theoretical guarantees on feature selection
+problems than backward methods. 
+
+In this work, we explore forward methods to address the NAS problem. 
+In particular, we take a gradient boosting approach to gradually increase the
+complexity of existing models. 
+
+
+
+We have to unfortunately rule out direct application of Forward Regression and 
+Orthogonal Matching Pursuit, which we previously explored for anytime linear prediction, 
+because these methods require computing $w(\alpha)$, which is too expensive in the NAS setting. 
+However, there exist feature selection methods that do not require $w(\alpha)$,
+and instead of update $\alpha$ and $w(\alpha)$ jointly. 
+Least-angle Regression (LARS)~\citep{lars} is one of such method for feature selection.
+Intuitively in LARS, we compute the correlation between the residual of linear prediction and
+each feature, and find the feature with largest absolute correlation. Then we update the 
+coefficient of this feature until it no longer has the largest absolute correlation with the residual. 
+One can apply LARS iteratively by updating the coefficients with small step size or with line search. 
+If we assume the features are normalized to have zero mean and unit variance in linear prediction, 
+then the correlation between residual and a single feature is simply gradient with respect to the 
+coefficients of the feature. Then LARS can be viewed as gradient boosting. For more details on
+this connection between feature selection based on gradients of the coefficients of candidate features and 
+gradient boosting, a.k.a, approximated functional gradient descent, see Section~\ref{sec:gomp_proof_II} in 
+Chapter~\ref{chapter:anytime_linear}. 
+
+
+
+
+
+
+\section{METHOD}
+
+
+
+
+
 
 \subsection{Search Procedure}
 \label{sec:search_procedure}
@@ -377,7 +381,7 @@ $d_{max} = 16$ to prevent searching overly complex models.
 
 A finalized and trained model from Sec.~\ref{sec:candidate_finalize} is evaluated on a validation set, and is added to the parent pool if it is on the lower convex hull of the plot of test-time computation versus validation error rates. We also remove from the parent pool the models that are no longer on the lower convex hull, when the hull is changed by new models. 
     
-\section{Experiment}
+\section{EXPERIMENTS}
 \label{sec:nas_experiment}
 
 %%%%%%%%%%%%%%%%%%%%%%%% 
@@ -600,7 +604,7 @@ We next consider switching to CP during search, which \Petridish does by default
 In Sec.~\ref{sec:soft_vs_hard}, we apply $\stopforward$ and $\stopgradient$ to block the influence of feature selection modules to the parent models, which we called \petridishhard. This section empirically studies this design choice versus the variant \petridishsoft, where $\stopforward$ and $\stopgradient$ are simply replaced with identity. Table~\ref{tab:imagenet_compare} showcases the transfer results of \petridishhard (\Petridish) and \petridishsoft to ImageNet. We first compare \Petridish cell (F=40) with \petridishsoft cell (F=32), two models that have similar computational cost but very different accuracy, and we observe that \petridishhard leads to a better model than \petridishsoft for cell-search. In macro-search, the comparison between \petridishhard and \petridishsoft appears to be non-conclusive (\Petridish macro (F=32) versus \petridishsoft macro (F=48)), as both methods find models of similar complexity and accuracy using similar search time. 
 
 
-\section{Conclusion and Discussion}
+\section{CONCLUSION and DISCUSSIONS}
 \label{sec:conclusion}
 In this work, 
 

@@ -1,5 +1,5 @@
 %\section{Appendix B: Generalized Linear Model with Multi-Dimensional Response}
-\section{Extension to Generalized Linear Model}
+\section{EXTENSION to GENERALIZED LINEAR MODELS}
 \label{sec:extension}
 While we only formulated the feature group sequencing problem in linear prediction setting previously, we can extend our algorithm for generalized linear models\cite{glm} and multi-dimensional responses. In general, we assume that we have $P$ dimensional responses, and predictions are of the form $E[y | x ] = \nabla \phi( W x)$, for some known convex function $\phi : \mathbb{R}^P \rightarrow \mathbb{R}$, and an unknown coefficient $P\times D$ matrix, $W$. Thus, the generalized linear
 prediction problem is to minimize over coefficient matrix $W: P\times D$:
@@ -64,7 +64,7 @@ and Theorem~\ref{thm:main} hold as they are.
 %  \caption{Cost Sensitive Group Orthogonal Matching Pursuit (G-OMP) for Generalized Linear Models}
 %  \label{algo:gomp_glm}
 %\end{algorithm}
-\begin{algorithm}[tb]
+\begin{algorithm}[ht!]
 \caption{Cost Sensitive Group Orthogonal Matching Pursuit For Generalized Linear Model}
  \label{algo:gomp_glm}
 \begin{algorithmic}[1]

@@ -18,14 +18,14 @@ In this work we propose a method for growing networks from small to large where 
 \item We propose an approach to increase complexity of neural networks during training iteratively. We alternate between two phases. The first expands the model with potential shortcut connections and train them jointly. The second phase trim the previous potential connections using feature selection and continue training the model. 
 \item The proposed approach can be applied to both improve a small repeatable pattern, called cell, and improve the macro network architecture directly, unlike most popular approaches that only focus on cells. This opens up neural architecture search to fields where no domain knowledge of the macro structure exists. 
 \item On cell-search, the proposed method finds a model that achieves 2.61\% error rate on CIFAR10 using 2.9M parameters within 5 GPU-days. 
-%The model achieves \% error rate on ILSVRC2012 using M parameters and M multi-adds.
+The model achieves 26.0\% error rate on ILSVRC2012 using 4.8M parameters and 598M multi-adds.
 \item On macro-search, the proposed method finds a model that achieves 2.83\% error rate on CIFAR10 using 2.2M parameters within 5 GPU-days. 
 %The model achieves \% error rate on ILSVRC2012 using M parameters and M multi-adds.
 \item The proposed approach can warm start from existing networks, leveraging previous training results. Furthermore, it directly expands models on the lower convex hull of error rate vs. flops and is hence able to naturally produce a gallery of cost-effective models which is critical for production serving needs. 
 \end{itemize}
 
 
-\section{BACKGROUND and REFERENCES}
+\section{BACKGROUND AND REFERENCES}
 \label{sec:nas_background}
 %\begin{itemize}
 %    \item Cascade-correlation
@@ -45,15 +45,15 @@ The work of \citep{nas,NASCell} renewed interest in NAS in recent times. Their m
 \cite{Liu2018DARTSDA} proposed a novel method based on bilevel optimization~\citep{bilevel_opt} termed as Differentiable Architecture Search (DARTS) which relaxes the originally discrete optimization problem to a continuous one and maintains two sets of continuous parameters: 1. The (architecture) parameters over the layer types and 2. The regular parameters of the network itself for each layer type. This is optimized in an alternating fashion where first the architecture parameters are trained alternated by the parameters of the layers of each type. Discrete architectures are then backed out by just selecting the architecture parameters which have the maximum value and discarding others. DARTS achieves impressive results on cell-search space with short search times.
 \cite{Elsken2018EfficientMN, CaiPathLevel} proposed an alternative insight to speed up search by incrementally evolving models from existing cost-effective models. In particular,~\cite{Elsken2018EfficientMN} explore expanding the Pareto-frontier, a set of points that do not have strict superior points, of the parameter-versus-accuracy plot to find parameter-efficient models. We refer the reader to the excellent survey article by \cite{Elsken2018NeuralAS} for more details on this rapidly evolving field. 
 
-\section{NEURAL ARCHITECTURE SEARCH as an OPTIMIZATION}
+\section{NEURAL ARCHITECTURE SEARCH AS OPTIMIZATION}
 
 Given a data sample $x$ with label $y$, a neural network architecture $\alpha$ with parameters $w$ produces 
 a prediction $\hat{y}(x ; \alpha, w)$ and suffers a prediction loss $\ell(\hat{y}(x ; \alpha, w), y)$.
-The expected training loss is then 
+The empirical training loss is then 
 \begin{align}
 \mathcal{L}(\alpha, w) = \mathbb{E} _{x, y \sim \mathcal{D}} [ \ell(\hat{y}(x ; \alpha, w), y) ] ,
 \end{align}
-where $\mathcal{D}$ is the distribution of the training data. 
+where $\mathcal{D}$ is the empirical training data. 
 Then the problem of neural architectures search can be formulated as a bi-level optimization~\citep{bilevel_opt}
 of both the network architecture $\alpha$ and the model parameters $w$ under the expected training loss $\mathcal{L}$ 
 as follows.
@@ -64,18 +64,24 @@ s.t. \quad w(\alpha) = \argmin _w \mathcal{L} (\alpha, w)
 \quad and \quad c(\alpha) \leq K,
 \label{eq:bilevel_nas}
 \end{align}
-where $c(\alpha)$ represents the computational cost of the architecture, and $K$ is some constant. 
+where $c(\alpha)$ represents the test-time computational cost of the architecture, and $K$ is some constant. 
 
 We formalize $\alpha$ as a set of discrete decisions on which operations to include in an architecture.
-Let $x_1, x_2,...,$ be intermediate layers, and $x_0 = x$ is the input. The possible connections 
-are triples $(x_{i}, x_{j}, op)$ for each $i < j$ and each possible operations $op$ such as conv and pool. 
-Each intermediate layer $x_i$ also has a choice on a merge operation to choose how multiple connections 
-into $x_i$ are merged together. The last $x_i$ that has an input is used to produce a prediction 
-$\hat{y}(x; \alpha, w)$. 
-Hence, the architecture variable $\alpha$ encompasses the decisions of 
-which of these possible connections exist and how the operations are merged. In this work, we hold the 
-merge operation a constant in the networks and use ablation study to make the choice. 
-We focus on the search over the choices of the connections. 
+Let $x_1, x_2,...,$ be intermediate layers, and $x_0 = x$ is the input. Each layer $x_i$ is a function
+of the previous layers, i.e., $x_{i} = f_i ( x_0, x_1,..., x_{i-1})$ for some function $f_i$, 
+though it is not necessary for $x_i$ to directly use each of the previous layers.
+Each shortcut connection is defined by a triple $(x_{j}, x_{i}, op)$, 
+where $x_j$ and $x_i$ ($j < i$) represent the input and output layers, and $op$ is a unary operation such 
+as conv 3x3 and max pooling 3x3. Such a shortcut results in a tensor $op(x_{j})$ that can be used directly by 
+$x_i$. Such tensors with a common output location $x_i$ are combined by a merge operation 
+at $x_i$, such as averaging, summation, or concatenation in order to form $x_i$.
+In this work, we set the merge operations almost uniformly within the network, 
+and determine them through ablation studies. 
+Instead, we focus on the choice of the shortcut connections, i.e., each $\alpha$ is 
+an unordered collection of $(x_j, x_i, op)$. 
+
+
+\subsection{Connection to Feature Selection}
 
 Before delving into a proposed approach, we first draw an interesting connection of Eq.~\ref{eq:bilevel_nas}
 to a problem that we already considered in early chapters, anytime linear prediction.
@@ -90,22 +96,13 @@ of the optimization problem in Eq.~\ref{eq:bilevel_nas}.
 where $X \in \mathcal{R}^{n \times d}$ is the feature matrix of the $n$ samples of $d$-dimensional features,
 $Y \in \mathcal{R}^n$ is the regression targets, and $X_{\alpha}$ selects the features included in $\alpha$.
 
-This observation then should then both indicate the difficulty of NAS problem and provide some insight on
-how we may extend feature selection algorithms for NAS. 
-Even with the analytic form of $w(\alpha)$, the feature selection problem in Eq.~\ref{eq:bilevel_gomp} 
-is still NP-hard and requires approximation methods. 
-When $w(\alpha)$ has to be computed via optimization, such as in generalized linear prediction
-and neural network, the greedy approximation methods that we studied in early chapters become 
-too computational expensive. 
-As a result, a cost-effective NAS algorithm must approximate in both $\alpha$ and $w(\alpha)$, 
-and exploit special conditions of NAS. 
+This observation permits us to translate between existing NAS algorithm to the feature selection problem. 
+In particular,~\citep{nas,Real2017EvoNet} apply reinforcement learning and evolutionary algorithm to 
+guide the trials of architecture $\alpha$, and train the potential architectures independently. 
+Such methods, when applied to feature selection, are equivalent to exploring all subset of features 
+guided by reinforcement learning or evolutionary algorithms. As a result, it is understandable that
+such approach requires tens of thousands trials and thousands of GPU-days. 
 
-From this observation we can also draw parallel between the NAS algorithms and 
-feature selection algorithms. For instance, the early NAS works such as~\citep{nas,Real2017EvoNet}
-solves $w(\alpha)$ for each $\alpha$ independently, and as a result, these work require
-thousands of GPU-days. Such approaches are similar to 
-applying reinforcement learning and evolutionary algorithm to feature selection: 
-we eventually will discover the best subset of features to select, but at a high training cost.
 In contrast, the more recent works~\citep{Pham2018EfficientNA,Liu2018DARTSDA} train all possible
 networks at the same time by training the super-graph that is the union of all possible architectures within 
 a certain size limit. 
@@ -114,55 +111,44 @@ sub-graph from the super-graph. Such procedures draw parallel to backward elimin
 and sparse optimization approach to feature selection, 
 where the irrelevant features are iteratively removed or gradually down-weighted. 
 
-While the backward methods are attractive in NAS because they organize all possible networks 
-compactly in a single super-graph to be trained at the same time, they also may suffer 
-in general NAS problems, where we may not know all possible operations 
-in advance and there may be a large number of possible operations and a 
-large number of required intermediate layers. These conditions may cause the backward methods to fail, as 
-it becomes impossible to fit the super-graph compactly to train all possibility at once.
-In contrast, forward methods for feature selection, where
-features are gradually added into the model, is much more popular in the feature selection
-literature, because they build on the few actual relevant features, and furthermore, 
-there are much more forward methods with theoretical guarantees on feature selection
-problems than backward methods. 
+Besides exhaustive search, sparse optimization and backward elimination, there is another popular branch of approaches 
+in feature selection, forward selection, where feature are iteratively selection, or the coefficients are iteratively increased. 
+In fact, we have previously considered such methods,
+including Forward Regression (FR) and its approximation Orthogonal Matching Pursuit (OMP),
+in Chapter~\ref{chapter:anytime_linear} for anytime linear prediction. Unfortunately, we cannot 
+directly apply FR or OMP for the NAS problem, because both methods require computing 
+$w(\alpha)$ at each architecture, and such computation takes a GPU-day on its own. Instead, we have
+to consider methods that approximate $w(\alpha)$ and $\alpha$ at the same time. Fortunately,
+one such forward algorithm for feature selection is Least-angle regression (LARS)~\citep{lars}. 
 
-In this work, we explore forward methods to address the NAS problem. 
-In particular, we take a gradient boosting approach to gradually increase the
-complexity of existing models. 
-
-
-
-We have to unfortunately rule out direct application of Forward Regression and 
-Orthogonal Matching Pursuit, which we previously explored for anytime linear prediction, 
-because these methods require computing $w(\alpha)$, which is too expensive in the NAS setting. 
-However, there exist feature selection methods that do not require $w(\alpha)$,
-and instead of update $\alpha$ and $w(\alpha)$ jointly. 
-Least-angle Regression (LARS)~\citep{lars} is one of such method for feature selection.
-Intuitively in LARS, we compute the correlation between the residual of linear prediction and
+In LARS, we compute the correlation between the residual of linear prediction and
 each feature, and find the feature with largest absolute correlation. Then we update the 
-coefficient of this feature until it no longer has the largest absolute correlation with the residual. 
-One can apply LARS iteratively by updating the coefficients with small step size or with line search. 
-If we assume the features are normalized to have zero mean and unit variance in linear prediction, 
-then the correlation between residual and a single feature is simply gradient with respect to the 
-coefficients of the feature. Then LARS can be viewed as gradient boosting. For more details on
-this connection between feature selection based on gradients of the coefficients of candidate features and 
-gradient boosting, a.k.a, approximated functional gradient descent, see Section~\ref{sec:gomp_proof_II} in 
-Chapter~\ref{chapter:anytime_linear}. 
+coefficient of this feature until its absolute correlation is no longer the largest.
+One practical approximation of LARS is iteratively update the coefficients of the most 
+correlated feature with small steps, so that we avoid computing the line search analytically. 
+Under this modification, LARS can be viewed as gradient boosting with small step sizes.
+In Eq.~\ref{eq:bilevel_nas}, the gradient of the empirical loss with respect to the prediction is 
+\begin{align}
+\nabla _{\hat{y}} \mathcal{L} (\alpha, w) = \mathbb{E} _{x, y \sim \mathcal{D}} [ \nabla _{\hat{y}} \ell(\hat{y}(x ; \alpha, w), y) ].
+\label{eq:nas_func_g_y}
+\end{align}
+Under linear prediction, this gradient becomes the residual up to a constant, 
+$
+\nabla _{\hat{y}} \mathcal{L} (\alpha, w) = \frac{1}{n}(X_{\alpha}w(\alpha) - Y).
+$
+Under linear predictions, features can be viewed as weak learners. 
+Hence, the correlation between the residual and the features are
+the correlation between the weak learners and the functional gradients with respect to predictions.
+The selected weak learner is then the one that can match the gradient the most, i.e., 
+LARS follows gradient boosting to select weak learners.
+For more details on the relationship between gradient boosting
+and feature selection, see Section~\ref{sec:gomp_proof_II}.
 
 
 
 
-
-
-\section{METHOD}
-
-
-
-
-
-
-\subsection{Search Procedure}
-\label{sec:search_procedure}
+%\subsection{Search Procedure}
+%\label{sec:search_procedure}
 
 %\begin{figure*}
 %    \centering
@@ -172,48 +158,146 @@ Chapter~\ref{chapter:anytime_linear}.
 %\end{figure*}
 
 
-We propose a method to grow networks iteratively from existing models for searching cost-effective models. 
-The network growth alternates between two phases. First, an existing parent model is expanded with candidate operations, and we train these operations along with the parent model to initialize them (Sec.~\ref{sec:candidate_init_and_select}). Second, based on feature selection techniques, we select from among the candidate operations, a small subset to permanently add to the parent model, and then finalize the model with some epochs of training starting from the initialization (Sec.~\ref{sec:candidate_finalize}). As we seek the most cost-effective models, we take a greedy approach to expand only the most cost-effective ones as parents (Sec.~\ref{sec:parent_choice}). 
-The procedure is parallelized via a pool of GPU workers that perform training via backpropagation for both phases of growth. 
+%We propose a method to grow networks iteratively from existing models for searching cost-effective models. 
+%The network growth alternates between two phases. First, an existing parent model is expanded with candidate operations, and we train these operations along with the parent model to initialize them (Sec.~\ref{sec:candidate_init_and_select}). Second, based on feature selection techniques, we select from among the candidate operations, a small subset to permanently add to the parent model, and then finalize the model with some epochs of training starting from the initialization (Sec.~\ref{sec:candidate_finalize}). As we seek the most cost-effective models, we take a greedy approach to expand only the most cost-effective ones as parents (Sec.~\ref{sec:parent_choice}). 
+%The procedure is parallelized via a pool of GPU workers that perform training via backpropagation for both phases of growth. 
 
-One reason for early NAS works~\citep{nas,NASCell,Real2018RegularizedEF} to have long search time is that candidate models are treated as independent and are trained separately. Recent works~\citep{Pham2018EfficientNA, Liu2018DARTSDA} exploit the similarity of candidate models by jointly training multiple models in a single joint super-graph of models in order to find the best sub-graph. However, designing such super-graph requires expert knowledge that may not exist for general data-sets. Furthermore, it is not clear how super-graph approaches can utilize existing trained models, an idea that has been shown in~\citep{Elsken2018EfficientMN} to also improve the search speed greatly and is important in production environments with large continuously streaming-in data. One contribution of this work is to expand existing models with small super-graphs of candidate operations, and select few of them to form a cost-efficient improvement of the original model. 
+%One reason for early NAS works~\citep{nas,NASCell,Real2018RegularizedEF} to have long search time is that candidate models are treated as independent and are trained separately. Recent works~\citep{Pham2018EfficientNA, Liu2018DARTSDA} exploit the similarity of candidate models by jointly training multiple models in a single joint super-graph of models in order to find the best sub-graph. However, designing such super-graph requires expert knowledge that may not exist for general data-sets. Furthermore, it is not clear how super-graph approaches can utilize existing trained models, an idea that has been shown in~\citep{Elsken2018EfficientMN} to also improve the search speed greatly and is important in production environments with large continuously streaming-in data. One contribution of this work is to expand existing models with small super-graphs of candidate operations, and select few of them to form a cost-efficient improvement of the original model. 
 
 %I think we gain generality as no super-graph is needed, models can be warm started which DARTS and ENAS cannot do. We lose in terms of search time.
+
+
+
+\section{A NAS Approach from Gradient Boosting}
+
+
+This section first briefly review gradient boosting, and 
+then describes the proposed method as an iterative optimization of Eq.~\ref{eq:bilevel_nas}. 
+Then we delve into implementation details, such as design choice of hyper parameters and 
+how to approximate some intermediate steps efficiently.
+
+
+\subsection{Gradient Boosting}
+\label{sec:gb_review_nas}
+Let $\mathcal{H}$ be a space of weak learners. 
+Gradient boosting matches weak learners $h \in \mathcal{H}$ to 
+the functional gradient of the loss $\mathcal{L}$ with respect to the prediction $\hat{y}$, 
+i.e., $\nabla _{\hat{y}} \mathcal{L}$ in Eq.~\ref{eq:nas_func_g_y}.
+The weak learner that matches the negative gradient the best, $h^*$, is added to the ensemble of learners, i.e.,
+\begin{align}
+h^* = \argmin _{h \in \mathcal{H}} \langle \nabla _{\hat{y}} \mathcal{L}, h \rangle.
+\end{align}
+Then the predictor is updated to become $\hat{y} \leftarrow \hat{y} + \eta h^*$, where $\eta$ is the learning rate.
+
+\subsection{Gradient-Boosting-Inspired NAS}
+\label{sec:gb_nas}
+Following gradient boosting strictly would limit the model growth to be only at the prediction of the network, $\hat{y}$. 
+Instead, this work seeks to expand the expressiveness of the network at intermediate layers, $x_1, x_2,...,$, jointly.
+Inspired by gradient boosting, we considering adding a weak learner $h_i \in \mathcal{H_i}$ at each $x_i$, where 
+$\mathcal{H}_i$ is the space of weak learners for layer $x_i$ and we will specify it shortly. 
+$h_i$ helps reduce the gradient of the loss $\mathcal{L}$ with respect to $x_i$, $\nabla _{x_i} \mathcal{L}  = \mathbb{E} _{x, y \sim \mathcal{D}} [ \nabla _{\hat{x_{i}}} \ell(\hat{y}(x ; \alpha, w), y) ]$.
+i.e., we choose $h_i$ with 
+\begin{align}
+h_i = \argmin _{h \in \mathcal{H}} \langle h, 
+\nabla _{x_i} \mathcal{L} (\alpha, w) \rangle = \langle h, \mathbb{E} _{x, y \sim \mathcal{D}} [ \nabla _{\hat{x_{i}}} \ell(\hat{y}(x ; \alpha, w), y) ] \rangle.
+\label{eq:hallu_objective}
+\end{align}
+Then we expand the model by adding a small step $\eta$ in the direction of $h_i$ to $x_i$, i.e., we replace each $x_i$ with $x_i + \eta h_i$ in the original network.
+Throughout this work, we set the merge operation at the expansion location $x_i$ to be summation for simplicity.
+
+Sec.~\ref{sec:search_space} details the search space such as choice of $x_i$ and $\mathcal{H}_i$. 
+Sec.~\ref{sec:candidate_init_and_select} details how to approximate Eq.~\ref{eq:hallu_objective} efficiently via 
+a joint optimization of weak learners, warm-starting from some existing models.
+Sec.~\ref{sec:candidate_finalize} details how we finalize the selected weak learner $h_i$ for layer $x_i$.
+Sec.~\ref{sec:parent_choice} details how to choose which model to apply the network growth.
+
+
+
+\subsection{Search Space}
+\label{sec:search_space}
+
+\textbf{Cell-search vs. Macro-search.}
+In this work, we consider both cell-search, 
+a popular NAS search space where networks are described as repeats of some connection patterns~\citep{NASCell,Real2018RegularizedEF,Pham2018EfficientNA,Liu2018DARTSDA}, 
+and macro-search, a more general NAS where the connections patterns are not required to be repeated. 
+In our cell-search, we add a single weak learner to the end of the cell for each iteration of network growth. 
+We detail the space of the weak learner shortly after.
+For a fair comparison between macro-search and cell-search, we require the initial seed models of the two searches to be the same, and the 
+weak learners are added at the same rate and at the same locations while using the same weak learner spaces $\mathcal{H}$.   
+Specifically, both cell-search and macro-search start with the same seed model that is constructed by repeating one of the simplest cell 
+in the space. We limit the weak learners of macro-search to only be added to layers that are ends of cells in the seed model.  
+Furthermore, macro-search also makes one addition to each cell at each iteration, so that weak learners are added at the same rate and locations. 
+Finally, inputs of weak learners in macro-search are limited to be the same as in cell-search. 
+As a result, the only difference between our macro-search and cell-search is in whether the connection pattern is repeated, and we can 
+view cell-search and macro-search as expanding the cells in the seed model homogeneously and heterogeneously, respectively. 
+
+
+\textbf{Weak Learner Space $\mathcal{H}$.}
+Given an intermediate layer $x_{k}$ to expand at, its associated weak learner space $\mathcal{H}_{k}$ is defined by four terms: the possible inputs, the
+possible unary operations on the inputs, a merge operation to combine the results, and the maximum number of inputs. 
+Following~\citep{NASCell,Real2018RegularizedEF,Liu2018DARTSDA}, we limit weak learners to only take input from layers within the same cell or from the output layers of the previous 
+two cells. Let the collection of eligible input layers be $\text{In}(x_{k})$. 
+The eligible unary operations are dependent on data-set. Following~\citep{Liu2018DARTSDA}, seven operations are eligible for vision tasks, and they are
+separable conv 3x3 and 5x5, dilated conv 3x3 and 5x5, max and average pooling 3x3, and identity. Following~\citep{NASCell,Real2018RegularizedEF}, the separable conv is 
+repeated twice. Let the collection of eligible unary operations be $\text{Op}$.
+Since we restrict the merge operation at $x_{k}$ to be summation, we found through ablation study in Sec.~\ref{sec:sum_vs_cat_proj} that
+it is substantially better to merge the operations in the weak learners via a concatenation followed by a conv 1x1 to reduce the channel size. 
+The maximum number of inputs is also data-set dependent, and for vision tasks, we set it to be $I_{max} = 3$, which is an empirical result from~\citep{darts_gumbel}.
+Then the weak learner space $\mathcal{H}_{k}$ for a layer $x_{k}$ is formally 
+\begin{align}
+\mathcal{H}_{k} = \{ \text{cat\_proj}( op_1(z_1), ..., op_{j}(z_{j})) : z_1, ..., z_j \in \text{In}(x_{k}), op_1, ..., op_j \in \text{Op}, j \leq j_{max}  \}.
+\end{align}
+
+
+
+\textbf{Additional Search Space Details.}
+For the vision tasks, the initial model for both macro and cell-search is a modified ResNet~\citep{resnet}, where we replace each 3x3 convolution with a 3x3 separable convolution. This is one of the simplest cell within the search space of existing literature~\citep{NASCell,Pham2018EfficientNA,Liu2018DARTSDA}.  Following ~\citep{NASCell}, we have six regular cells for each of the three resolutions of feature maps during training of the final found architectures, 
+but have three regular cell per resolution during search. Similarly, we have an initial channel size of $F=32$ during final training and $F=16$ during search. 
+A transition cell is in between each neighboring resolutions, and it also starts as a modified residual unit. 
+When we transfer the model to larger data-sets that require more than three resolutions, we use transition cells to first down-sample the image height and width to be no greater than 32 and then apply the found model. In macro-search, where no transition cells are specifically learned, we again use the the modified ResNet cells for initial transition in the transferred model.
+
+
+\subsection{Joint Weak Learning}
+\label{sec:candidate_init_and_select}
 
 \begin{algorithm}[t]
 \begin{algorithmic}[1]
 \STATE \textbf{Input}: 
-(1) $L_x$, the list of layers in the parent model (macro-search) or cell (cell-search) in topological order;
-(2) $\text{is\_out}(x)$, whether layer $x$ can be $x_{out}$;
-(3) frozen, whether to freeze the influence from candidates to the parent;
-(4) $\lambda$, hyper parameter for feature selection.
+(1) $L_x$, the list of layers in the current model (macro-search) or current cell (cell-search) in topological order;
+(2) $\text{is\_out}(x)$, whether we can expand at $x$;
+(3) $\text{is\_frozen}$, whether to freeze the influence from candidates to the parent;
+(4) $\lambda$, hyper parameter for selection shortcut connections. 
+\STATE \textbf{Output}: (1) $L'_x$, the modified $L_x$ with weak learners $x_c$; 
+(2) $L_c$, the list of $x_c$ created;
+(3) $\ell_{extra}$, the additional training loss.
+
 \STATE $L'_x \leftarrow L_x$
 \STATE $L_c \leftarrow \text{empty list}$
-\FOR{$k$, $x_{out}$ in enumerate($L_x$)}
-    \IF { not \text{is\_out}($x_{out}$)}
+\STATE $\ell_{extra} \leftarrow 0$ 
+\FOR{$x_k$ in enumerate($L_x$)}
+    \IF { not \text{is\_out}($x_{k}$)}
         \STATE continue
     \ENDIF
-    \STATE $S$ $\leftarrow$ $L_x[:k]$ the sublist that ends before $x_{out}$.
-    \STATE Uniformly randomly sample $I$ samples from $S$ without replacement as $x_{in,1}, ..., x_{in,I}$.
+    \STATE Compute the eligible inputs $\text{In}(x_{k})$, and index them as $z_1,...,z_I$.
 
     %\STATE Initialize $\alpha_{i,j}$ randomly from Gaussian. 
     %\STATE Initialize parameters in $op_j(x_{in,i})$. 
-    \IF { frozen }
-        \STATE $x_c \leftarrow \sum _{i=1}^I \sum _{j=1}^J  \alpha^k_{i,j}op_j(\stopgradient (x_{in,i}))$.
+    \IF { $\text{is\_frozen}$ }
+        \STATE $x_c \leftarrow \sum _{i=1}^I \sum _{j=1}^J  \alpha^k_{i,j}op_j(\stopgradient (z_i))$.
+        \label{algline:add_sg}
     \ELSE
-        \STATE $x_c \leftarrow \sum _{i=1}^I \sum _{j=1}^J  \alpha^k_{i,j}op_j(x_{in,i})$.
+        \STATE $x_c \leftarrow \sum _{i=1}^I \sum _{j=1}^J  \alpha^k_{i,j}op_j(z_i)$.
     \ENDIF
-\STATE Insert the layer $x_c$ right before $x_{out}$ in $L'_x$.
-\STATE Add $\lambda \sum _{i=1}^I \sum _{j=1}^J |\alpha^k_{i,j}|$ to the total loss of the model respented by $L'_x$.
+\STATE Insert the layer $x_c$ right before $x_{k}$ in $L'_x$.
+\STATE $\ell_{extra} \leftarrow \ell_{extra} + \lambda \sum _{i=1}^I \sum _{j=1}^J |\alpha^k_{i,j}|$.
 \STATE Append $x_c$ to $L_c$.
-\IF { frozen }
-    \STATE Modify $x_{out}$ in $L'_x$ so that $x_{out} \leftarrow x_{out} + \stopforward (x_c)$.
+\IF { $\text{is\_frozen}$ }
+    \STATE Modify $x_{k}$ in $L'_x$ so that $x_{k} \leftarrow x_{k} + \stopforward (x_c)$.
+    \label{algline:add_sf}
 \ELSE
-    \STATE Modify $x_{out}$ in $L'_x$ so that $x_{out} \leftarrow x_{out} + x_c$.
+    \STATE Modify $x_{k}$ in $L'_x$ so that $x_{k} \leftarrow x_{k} + x_c$.
 \ENDIF
 \ENDFOR
-\STATE \textbf{Output}: (1) $L'_x$, the modified $L_x$ with candidates; 
-(2) $L_c$, the list of $x_c$ created.
 \end{algorithmic}
 \caption{Initialize Candidates}
 \label{alg:candidate_init}
@@ -223,103 +307,131 @@ One reason for early NAS works~\citep{nas,NASCell,Real2018RegularizedEF} to have
 \begin{algorithmic}[1]
 \STATE \textbf{Inputs}: (1) $L'_x$, the list of layers of the model in topological order;
 (2) $L_c$, list of selection modules in $L'_x$;
-(3) $\alpha^k_{i,j}$, the learned weights candidate operations. 
+(3) $\alpha^k_{i,j}$, the learned weights of the each $x_c$. 
+\STATE \textbf{Output}: A modified $L'_x$ with selected operations.
 \FOR{$x_c$ in $L_c$}
     \STATE Let $A = \{\alpha^{k}_{i,j}: i = 1,..., I, j = 1,..., J\}$  be the weights of operations in $x_c$.
     \STATE Sort $\{ |a| : a \in A \}$, and let the operations associated with the largest three value be $op_1, op_2, op_3$.
     \STATE Replace $x_k$ with $\text{proj}(\text{concat}(op_1, op_2, op_3))$ in $L'_x$.
 \ENDFOR
 \STATE Replace all $\stopforward (\cdot)$ and $\stopgradient (\cdot)$ with identity in $L'_x$.
-\STATE \textbf{Output}: A modified $L'_x$ with selected operations.
 \end{algorithmic}
 \caption{Select and Finalize Candidates}
 \label{alg:candidate_select}
 \end{algorithm}
 
-\subsection{Initialization of Candidates}
-\label{sec:candidate_init_and_select}
 
-\begin{figure}[t]
+Given an intermediate layer $x_{k}$ to expand at, we have $I = |\text{In}(x_{k})|$ possible input layers and $J = |\text{Op}|$ possible operations.
+Hence, there are more than $\binom{IJ}{I_{max}}$ possible weak learners
+in the space $\mathcal{H}_{k}$, and it is computationally expensive to fit each weak learner against the target gradients. 
+Inspired by the parameter sharing works in NAS~\citep{Pham2018EfficientNA,Liu2018DARTSDA} and model compression in neural networks~\citep{huang2017condensenet},
+we propose to jointly train the weak learners in the union of them, 
+and at the same time learn which of the shortcut connections are most influential. 
+
+
+Algorithm~\ref{alg:candidate_init} describes this proposed approach to train the weak learners. 
+For now, let us assume the boolean variable
+$is\_frozen$ is true in the algorithm. This means that the weak learning does not from affecting the parameter of the current model. 
+Fig.~\ref{fig:x_c_select_sf_sg} illustrates the weak learning modification to the current network. 
+
+\begin{figure}[ht!]
 \centering
-    \includegraphics[width=0.4\textwidth, keepaspectratio]{\NASDIR/img/x_c_select.png}
-    \caption{A selection module  where the parent model and the candidate operations are jointly trained (\petridishsoft).}
-    \label{fig:x_c_select}
+\subfloat[]{
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{\NASDIR/img/x_c_select.png}
+    \label{fig:x_c_select}}
+    
+\subfloat[]{
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{\NASDIR/img/x_c_select_sf_sg.png}
+    \label{fig:x_c_select_sf_sg}}
+    \caption{Training of a weak learner $x_c$, so that it can (a) and cannot (b) affect the current model.}
 \end{figure}
 
-Algorithm~\ref{alg:candidate_init} describes the procedure for expanding an existing model with feature selection modules to initialize and evaluate operations for forming shortcuts. Fig.~\ref{fig:x_c_select} illustrates a single selection module to add at layer $x_{out}$ of the parent model. 
-
-\textbf{Output Layers.} The locations of $x_{out}$ are fixed through the search. In our cell-search, $x_{out}$ is the output of the cell. To fairly compare macro-search and cell-search, we start macro-search with the same network that cell-search does, and set $x_{out}$ to be the outputs of the cells in the initial network of the search. We detail the initial model later. 
-
-\textbf{Input Layers.} The number of input layers $I$ of feature selection modules is set to be the number of layers in the parent model divided by the number of feature selection modules and then rounded up to the nearest integer. If $I$ is less than $2$, we set $I=2$. The input layers are then sampled uniformly at random without replacement from eligible layers. In cell-search, the eligible layers are those in the current cell or are inputs of the current cell. In macro-search, any layer topologically earlier than $x_{out}$ is eligible. 
-
-\textbf{Operations.} 
-To select a cost-effective set of operations for a shortcut from the inputs to the output, we initialize all possible $J$ operations on the inputs and combine them in a weighted sum to form the candidate layer $x_c$ as
+\textbf{Combining Weak Learners.} During the joint weak learning, we initialize a weighted sum of all the the unary operations on all the possible inputs as
 \begin{align}
-    x_c = \sum _{i=1}^I \sum_{j=1}^J \alpha_{i,j} op_j(x_{in,i}),
+    x_c = \sum _{i=1}^I \sum_{j=1}^J \alpha_{i,j} op_j(z_i),
     \label{eq:x_c_select}
 \end{align}
-where we adapt the shorthand $op_{i,j} = op_j(x_{in,i})$ in the Fig.~\ref{fig:x_c_select}. 
-The selection module then adds an additional loss to the total training loss:
+where we enumerate the possible operations as $op_j$ and the possible inputs as $z_i$, and $\alpha_{i,j}$ is the weight of the unary operation $op_j(z_i)$.  
+The merge operation of $x_c$ during the joint weak learning is the above weighted sum for simplicity of formulation, and it can be viewed as a special case
+of concat-projection. We will switch this merge operation later once we choose the shortcut connections. 
+
+
+\textbf{$L1$-regularization.} Each $op_j(z_i)$ is normalized with batch-normalization to have zero mean and unit variance in expectation, so that $\alpha_{i,j}$ reflects 
+the importance of the operation.
+To learn the most important operations, we apply $L1$-regularization~\citep{lasso} on the weight vector $\vec{\alpha}$ to encourage sparsity, i.e.,
+we add the following loss during the fitting of $x_c$,  
 \begin{align}
     \lambda \Vert \vec{\alpha} \Vert_1 = \sum_{i=1}^I \sum _{j=1}^J | \alpha _{i,j} |,
     \label{eq:x_c_select_loss}
 \end{align} 
-where $\lambda$ is a hyperparameter shared by all selection modules, and $\vec{\alpha}$ is the vector form of the scalar weights of the operations. This loss is inspired by the feature selection technique using L1 regularization~\citep{lasso}, known as Lasso, and similar approach has been successfully applied to model compression in neural networks~\citep{huang2017condensenet}. With the additional losses, backpropagation on the modified parent model simultaneously updates the parameters of the candidate operations and selects a subset of operations, because the operations with high absolute value of $\alpha$ are typically the more relevant features for $x_c$. 
+where $\lambda$ is a hyperparameter. $L1$-regularization, known as Lasso, is sparsity inducing, a widely used for feature selection in 
+linear predictions, and it has been successfully applied to model compression of neural networks such as in~\citep{huang2017condensenet}.
 
-\begin{figure}[t]
-\centering
-    \includegraphics[width=0.4\textwidth, keepaspectratio]{\NASDIR/img/x_c_select_sf_sg.png}
-    \caption{A selection module with stop-gradient and stop-forward to partially unfreeze the parent model (\petridishhard).}
-    \label{fig:x_c_select_sf_sg}
-\end{figure}
 
-\textbf{Task Specific Details.}
-For visual recognition tasks on CIFAR~\citep{cifar}, there are $J=6$ possible operations: 3x3, 5x5 and 7x7 depth-wise separable convolution, 3x3 max and average pooling, and identity. Following~\citep{NASCell,Real2018RegularizedEF,Pham2018EfficientNA}, separable convolutions are applied twice. 
-
-The initial model for both macro and cell-search is a modified ResNet~\citep{resnet}, where we replace each 3x3 convolution with a 3x3 separable convolution. This is one of the simplest cell within the search space of existing literature~\citep{NASCell,Pham2018EfficientNA,Liu2018DARTSDA}.  Following ~\citep{nas,NASCell}, we have six regular cells for each of the three resolutions of feature maps.
-A transition cell is in between each neighboring resolutions, and it also starts as a modified residual unit. Feature map channel sizes are doubled at transition cells, and the initial channel size is $F=32$, so that the found models of the proposed methods can be directly compared against the published results of~\citep{NASCell}. 
-
-When we transfer the model to larger data-sets that require more than three resolutions, we use transition cells to first down-sample the image height and width to be no greater than 32 and then apply the found model. In macro-search, where no transition cells are specifically learned, we again use the the modified ResNet cells for initial transition in the transferred model.
-
-\subsection{\petridishhard versus \petridishsoft Training.}
-\label{sec:soft_vs_hard}
-An interesting consideration is whether to freeze parameters of the parent models when we train and select the candidate layers. On one hand, most of our parent models are partially trained (more detail in Sec.~\ref{sec:candidate_finalize}) and the parent model contributes to the majority of the total computation, so we consider it very wasteful to freeze the parent parameters. On the other hand, if the parent model is frozen, different selection modules become independent of each other and may be easier to learn. Furthermore, freezing parent models prevents the newly initialized candidate layers from negatively affecting the parent model. C2~\citep{cascadecorr} thus adopts freezing the parent. 
-
-Instead of strictly freezing or not freezing the parent model, we consider a tradeoff as illustrated in Fig.~\ref{fig:x_c_select_sf_sg}: we stop the influence of the selection module on the parent model during the selection phase, but we allow both parent model and the selection module to be learned at the same time. To do so, we leverage two operations ``stop-gradient''($\stopgradient$) to the inputs $x_{in,i}$ and ``stop-forward''($\stopforward$) to the final output $x_c$. The function $\stopgradient$ is identity during forward, i.e., $\stopgradient (x) = x$, but has a zero gradient during backpropagation, i.e., $\nabla \stopgradient(x) = 0$. The function $\stopforward$ is the opposite and is defined as $\stopforward (x) = x - \stopgradient (x)$, so it is zero during forward and $\nabla \stopforward (x) = \nabla x$ during backward pass.  
-Hence, the final output to be added to the target location $x_{out}$ now becomes 
+\textbf{Weak learning.} 
+The goal of weak learning is to match $x_c$ with the negative gradient of the loss with respect to the layer $x_{k}$, i.e., 
+we minimize 
 \begin{align}
-    \stopforward (x'_c) =  \stopforward \big(\sum _{i=1}^I \sum_{j=1}^J \alpha_{i,j} op_j( \stopgradient( x_{in,i} ) ) \big). 
-    \label{eq:x_c_select_sf_sg}
-\end{align}
-As this term is zero during forward computation, the parent model's prediction is unaffected. This term also has a zero gradient with respect to all the input $x_{in,i}$ thanks to $\stopgradient$. This blocks the influence from the candidate layers to the parent model, analogous to how C2~\citep{cascadecorr} freezes learned neurons while initializing new neurons. 
-
-One can also understand Eq.~\ref{eq:x_c_select_sf_sg} by considering the linear loss
-\begin{align}
-   \langle \nabla_{x_{out}} \ell, x'_c \rangle =  
-   \langle \nabla_{x_{out}} \ell, \sum _{i=1}^I \sum_{j=1}^J \alpha_{i,j} op_j( \stopgradient( x_{in,i} ) ) \rangle,
+   \langle \nabla_{x_{k}} \mathcal{L}, x_c \rangle =  
+   \langle \nabla_{x_{k}} \mathcal{L}, \sum _{i=1}^I \sum_{j=1}^J \alpha_{i,j} op_j( \stopgradient( z_i ) ) \rangle,
     \label{eq:x_c_linear_loss}
 \end{align}
-where $\nabla_{x_{out}} \ell$ is the gradient of the prediction loss with respect to the tensor $x_{out}$. We note that the gradient of the prediction loss with respect to parameters in $x'_c$ is the same as gradients of Eq.~\ref{eq:x_c_linear_loss} with respect to the same parameters. Hence, the construction of $x'_c$ is in fact encouraging the selection module to fit its output $x'_c$ to match the negative gradient $-\nabla_{x_{out}} \ell$ of the prediction loss.
+where $\stopgradient$ is short for stop-gradient, and is an operation to treat each $z_i$ as a constant, so that the optimization of weak learners does not 
+affect the current network. We add this loss to the overall objective on line~\ref{algline:add_sf}, and an explanation is as follows.
+
+A naive implementation is to add the loss in Eq.~\ref{eq:x_c_linear_loss} to the additional $\ell_{extra}$, and backpropagate the network
+while only updating parameters in the weak learners $x_c$. 
+However, this will require one to record the intermediate gradients $\nabla _{x_{k}} \mathcal{L}$ during training. 
+Interestingly, this can be avoided and it is what we describe in Algorithm~\ref{alg:candidate_init} when $is\_frozen$ is set to true. 
+Specifically, on line~\ref{algline:add_sf}, we replace the layer $x_k$ with $x_k + \stopforward(x_c)$, 
+where $\stopforward(x_c) = x_c - \stopgradient(x_c)$, so that $\stopforward(x_c) = 0$ equals zero during 
+forward, and has gradient of identity with respect to $x_c$. As a result, 
+for any parameter $\theta$ in weak learner $x_c$ for intermediate layer $x_k$, its gradient during the backpropagation is
+\begin{align}
+\nabla_{\theta} \mathcal{L} &= \nabla _{x_k + \stopforward(x_c)} \mathcal{L} \nabla _{x_c} \stopforward(x_c) \nabla _{\theta} x_c \\
+&= \nabla _{x_k}\mathcal{L} \nabla _{\theta} x_c = \nabla_{\theta} \langle \nabla_{x_{k}} \mathcal{L}, x_c \rangle.
+\end{align}
+This is the same as the gradient of the loss in Eq.~\ref{eq:x_c_linear_loss} with respect to $\theta$.
+Hence, exploiting $\stopforward$ and $\stopgradient$ operations on line~\ref{algline:add_sf} and line~\ref{algline:add_sg}, we can
+optimize both the current network and the weak learners at the same time without the weak learners affecting the network. Furthermore, 
+we do not force the training procedure to compute $\nabla_{x_k} \mathcal{L}$ explicitly. 
+
+\textbf{Warm-start.} After appending the weak learners to an existing and trained model, we warm-start the training with the parameters
+of the existing model, and initialize the weak-learner parameters randomly. Leveraging these existing models parameters, 
+we can potentially spend fewer epochs per model, as the main model uses existing parameter, and the weak learners are shallow
+networks that should converge fast.
+
+\subsection{\petridishhard versus \petridishsoft Training of Weak Learners}
+\label{sec:soft_vs_hard}
+An interesting consideration is whether to stop the influence of the weak learners to the models during the weak learning. 
+On one hand, utilizing the parameters in the model may help the weak learners to converge, or directly allow the weak learners to improve the model. 
+On the other hand, the introduction of 
+untrained weak learners to trained models may negatively affect the models. Furthermore, the models may develop dependency on shortcut weak-learner connections 
+that are eventually removed, which can also negatively affect the future models. 
+To study the effects through an ablation study, we introduce the $is\_frozen$ variable for Algorithm~\ref{alg:candidate_init}. 
+When it is false, we replace the occurrence of $\stopforward$ and $\stopgradient$ with identity, so that the weak learners are directly added to the models, 
+as illustrated in Fig.~\ref{fig:x_c_select}. We call this variant
+\petridishsoft, and we compare it with \petridishhard, where $is\_frozen$ is true, in Sec.~\ref{sec:experiment_soft_vs_hard}. 
 
 
-In our experiments (Sec.~\ref{sec:experiment_soft_vs_hard}), we compare the above version of candidate training (\petridishhard) against the version where the parent parameters are not frozen during candidate training (\petridishsoft). 
+%we train and select the candidate layers. On one hand, most of our parent models are partially trained (more detail in Sec.~\ref{sec:candidate_finalize}) and the parent model contributes to the majority of the total computation, so we consider it very wasteful to freeze the parent parameters. On the other hand, if the parent model is frozen, different selection modules become independent of each other and may be easier to learn. Furthermore, freezing parent models prevents the newly initialized candidate layers from negatively affecting the parent model. C2~\citep{cascadecorr} thus adopts freezing the parent. 
 
 
 
-
-\subsection{Candidate Finalization}
+\subsection{Weak Learner Finalization}
 \label{sec:candidate_finalize}
 
 \begin{figure}[t]
 \centering
-    \includegraphics[width=0.4\textwidth, keepaspectratio]{\NASDIR/img/x_c_select_final.png}
+    \includegraphics[width=0.8\textwidth, keepaspectratio]{\NASDIR/img/x_c_select_final.png}
     \caption{Weighted sum is replaced with concat-projection, when the top operations are chosen. Any $\stopforward$ or $\stopgradient$ are also removed.}
     \label{fig:x_c_select_final}
 \end{figure}
 
 Algorithm~\ref{alg:candidate_select} describes how we select and finalize the initialized models. 
 The absolute value of the weights $\alpha_{i,j}$ convey the importance of the associated candidate operations. Upon finishing training the candidate layers with a few epochs, we keep the top three operations for each selection module in terms of the corresponding $| \alpha _{i,j} |$. 
-Other operations are removed. In our experiments in Sec.~\ref{sec:sum_vs_cat_proj}, we found a simple modification to be crucial for the final model cost-efficiency: instead of combining the selected operations in a weighted sum as in the selection phase, we concatenate the feature maps along the feature dimension, and project the result with 1x1 convolution to the same channel size as the target $x_{out}$ before summing them together to replace $x_{out}$, as illustrated in Fig.~\ref{fig:x_c_select_final}. This modification is in fact implicitly used by most of the existing neural architecture search works~\citep{NASCell,Pham2018EfficientNA}, where the layers within a cell is concatenated to form the cell output, and any operations on the output first project it to the same channel size as layers that are not cell outputs. We train the finalized model for a few epochs starting with the parameters from the selection phase. 
+Other operations are removed. In our experiments in Sec.~\ref{sec:sum_vs_cat_proj}, we found a simple modification to be crucial for the final model cost-efficiency: instead of combining the selected operations in a weighted sum as in the selection phase, we concatenate the feature maps along the feature dimension, and project the result with 1x1 convolution to the same channel size as the target $x_{out}$ before summing them together to replace $x_{out}$, as illustrated in Fig.~\ref{fig:x_c_select_final}. This modification is in fact implicitly used by most of the existing neural architecture search works~\citep{NASCell,Pham2018EfficientNA}, where the layers within a cell is concatenated to form the cell output, and any operations on the output first project it to the same channel size as layers that are not cell outputs. We train the finalized model for a few epochs warm-starting with the parameters from the weak learning phase. 
+
 
 
 
@@ -350,36 +462,36 @@ cost-effective, if there do not exist other models that are both less
 costly and test time and more accurate. Such models exactly lie on the
 Pareto-frontier of the scatter plot of test-time computation (in
 FLOPS) versus error rate. We also note that given two models on the
-scatter plot, any average performance on the line segment between them
-can be achieved by mixing the use of the two models with appropriate
-probabilities. Hence, we further restrict the most cost-effective
+scatter plot, any interpolation between their performance is achievable 
+by choosing one of them with some appropriate probability. 
+Hence, we further restrict the most cost-effective
 models to be on the lower convex hull of the cost versus error plot.
 
-We initialize the parent pool with a single simple data-set-dependent 
-model, which we detail in the experiments, and the pool expands during 
-the search.
-As a result, we need to balance the exploration and exploitation of the 
-parent models. 
-In this work, given a model $m$ on the lower convex hull, we weigh its 
-probability to become a parent model based on two values.
-First, the probability should decrease with the number of times the model 
-is chosen before, $n(m)$. Second, as we expand the models from an initial
-model, all models are naturally on a search tree rooted at the initial model.
-We call the depth of $m$ on the search tree $d(m)$, e.g., 
-the initial model has depth 0; its children with candidate selection
-models have depth 1; the grandchildren with finalized candidates have depth 2. 
-The probability
-should increase with $d(m)$, because the number of possible models grow at 
-least exponentially with the search tree depth. Combining these two insights, 
-we weight the probability of choosing a hull point to be:
-\begin{align}
-    Pr(\text{$m$ is chosen}) \propto exp( (d(m) - d_{max}) n(m) ),
-    \label{eq:parent_weight}
-\end{align}
-where $d_{max}$ is the maximum allowed search depth. We set 
-$d_{max} = 16$ to prevent searching overly complex models. 
+The initial seed model is a single model. 
+However, as the lower convex hull expands, we need to consider the 
+exploration and exploitation of the contained models. 
+In particular, when we have chosen a model $m$ for $n(m)$ times, 
+we should sample it with probability discounted by a factor $\frac{1}{n(m) + 1}$, 
+because if we uniformly sampling the children models, 
+the next one is the best with the probability $\frac{1}{n(m) + 1}$. 
+We also have a preference for the more accurate models, because
+it is often more difficult to expand the more accurate models, as there
+are fewer improvement. 
 
-A finalized and trained model from Sec.~\ref{sec:candidate_finalize} is evaluated on a validation set, and is added to the parent pool if it is on the lower convex hull of the plot of test-time computation versus validation error rates. We also remove from the parent pool the models that are no longer on the lower convex hull, when the hull is changed by new models. 
+Hence, our choice of the parent model, to which we apply the model growth,
+is determined by the following procedure. 
+We first compute the lower convex hull of the model validation performances 
+from the model finalization in Sec.~\ref{sec:candidate_finalize}. 
+We remove models that are already more expensive than the architecture budget
+$K$. Then we enter a while-loop of these most cost-effective models 
+from the most accurate to the least accurate until we select a model. 
+We choose a model $m$ and exit the loop with probability $p(m) = \frac{1}{n(m) + 1}$.
+
+We have investigated other intuitions on selecting the parent models to grow from. 
+However, since the total number of explored model is typically small in our investigation $<50$,
+we found the different sampling schemes to have similar results. Sec.~\ref{sec:appendix_parent_choice}
+contains more detailed discussion and ablation study on this subject.
+
     
 \section{EXPERIMENTS}
 \label{sec:nas_experiment}
@@ -423,7 +535,7 @@ A finalized and trained model from Sec.~\ref{sec:candidate_finalize} is evaluate
 \label{sec:experiment_cifar10_search}
 
 \textbf{Set-up.}
-We first apply the proposed algorithm to search for architectures on CIFAR-10~\citep{cifar}. During search, we use a fixed set of 45000 training images for training, and 5000 for validation. Both candidate initialization and finalization are trained for 80 epochs, with a batch size 32 and a learning rate that decays from 0.025 to 0 in cosine decay~\citep{cosine_lr}. We apply drop-out~\citep{larsson2016fractalnet} and cut-out~\citep{cutout} during search. The final found model is trained from scratch using the same parameters, except that it trains on all 50000 training images, and spends 600 epochs. 
+We first apply the proposed algorithm to search for architectures on CIFAR-10~\citep{cifar}. During search, we use a fixed set of 45000 training images for training, and 5000 for validation. Both weak learner initialization and finalization are trained for 80 epochs, with a batch size 32 and a learning rate that decays from 0.025 to 0 in cosine decay~\citep{cosine_lr}. We apply drop-out~\citep{larsson2016fractalnet} and cut-out~\citep{cutout} during search. The final found model is trained from scratch using the same parameters, except that it trains on all 50000 training images, and spends 600 epochs. 
 
 
 \textbf{Search Results.} 
@@ -432,7 +544,7 @@ Table~\ref{tab:cifar10_search} depicts the test-errors, model parameters, and se
 and showcases that macro search can find cost-effective architectures that are previously only found through cell search. 
 
 \textbf{Importance of initial models.}
-Table~\ref{tab:cifar10_search} also showcase the impact of initial models to the final results of architecture search. This is an important topic, because existing literature has been moving away from macro architecture search, as early works~\citep{NASCell,Pham2018EfficientNA,Real2018RegularizedEF} have shown cell search results tend to be superior than those from macro search. However, this result may be explained away by the superior initial models of cell search: the initial model of \Petridish is one of the simplest model that any of the listed cell search methods would propose and evaluate, and it already achieves 4.6\% error rate using only 0.4M parameters, a result that is on-par or better than many macro search results. 
+Table~\ref{tab:cifar10_search} also showcase the impact of initial models to the final results of architecture search. This is an important topic, because existing literature has been moving away from macro architecture search, as early works~\citep{NASCell,Pham2018EfficientNA,Real2018RegularizedEF} have shown that cell search results tend to be superior than those from macro search. However, this result may be explained away by the superior initial models of cell search: the initial model of \Petridish is one of the simplest model that any of the listed cell search methods would propose and evaluate, and it already achieves 4.6\% error rate using only 0.4M parameters, a result that is on-par or better than many macro search results. 
 
 
 \begin{table*}[t]
@@ -614,6 +726,7 @@ In this work,
 %
 %\appendix
 \section{Sampling Parents on the Lower Convex Hull}
+\label{sec:appendix_parent_choice}
 
 \subsection{Intuitions}
 \label{sec:candidate_parent_intuition}

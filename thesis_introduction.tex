@@ -14,7 +14,7 @@ For instance, robotic applications have varying test-time budget limits based on
 Web servers may handle heavier query traffic during the day than during the night, but they are expected to maintain the same low latency. 
 Mobile and low-computation devices may want a low-power mode in case of low battery. 
 Hence, it is beneficial to consider the setting where we seek the most accurate models at each possible budget limit of the applications. 
-We draw special attention to the fact that under this setting, we delay the decision of the budget limits to the test-time, allowing greater flexibility in the algorithms. Furthermore, when the budget limit becomes known, one can extract from the spectrum of cost-efficient models. Alternatively, if one wants to minimize the average test-time computational costs of the prediction given a target accuracy level, one can combine the spectrum of models with plethora works in budgeted predictions. We will discuss these connections in more detail in related works in Section~\ref{sec:related_works}.
+We draw special attention to the fact that under this setting, we delay the decision of the budget limits to the test-time, allowing greater flexibility in the algorithms. Furthermore, when the budget limit becomes known, one can extract from the spectrum of cost-efficient models. Alternatively, if one wants to minimize the average test-time computational costs of the prediction given a target accuracy level, such as in budgeted prediction~\ref{cascade_nn,adaptivenn}, one can combine the spectrum of models with early-stopping policies in order to reduce computation on clear decisions and prolong computation on ambiguous ones.
 
 While the above examples and problem settings focus on the balance between model accuracy and test-time computation, practitioners may often be concerned with their train-time computational costs. 
 One reason for this concern is that the data-sets are becoming larger and are continuously updated due to improved data storage and collection. Specifically, fields such as finance, information retrieval, computer vision, text and vocal language processing, and etc., each has accumulated data from decades of practice. Training state-of-the-art models against the decades worth of data becomes increasingly challenging. Hence, it is crucial for modern machine learning models to be able to handle large data-sets that may not be present on the same machine or at even the same time. Furthermore, the models ideally should be able to be improved as more data becomes available or more train-time computational resource is allocated. 
@@ -29,43 +29,33 @@ In summary, the targeted problem settings of this work can be partitioned into t
 For each of test-time and train-time trade-off between computation and accuracy, we develop both algorithms with theoretical performance guarantees and algorithms that work well on real-world data-sets. We summarize the main approaches that we take as follows. 
 
 One approach to have accurate predictions at each possible test-time computational budget limit is to first produce crude predictions early, and then continuously improve them. Such algorithms are called \emph{anytime} algorithms, and they automatically adjust to the varying or agnostic test-time budget limits because the algorithm utilize the computational resources until the budget limit. 
-One common approach~\citep{speedboost} to achieve anytime prediction is through ensembles of weak predictors, so that at test-time, one computes the predictors iteratively and then reports the partial ensemble result as the intermediate or anytime results. Indeed, the first anytime predictor of this work follows this idea of combining weak predictors in a generalized linear prediction setting, and utilizes submodular optimization results~\citep{kemp} to bound the performance of the predictions. Furthermore, we prove a limitation of any anytime algorithm that stems from an ensemble of weak predictors, proving that in general such an ensemble of cost $B$ can only achieve comparable rewards of the optimal ensemble of cost $B/4$. 
+One common approach to achieve anytime prediction is through ensembles of weak predictors~\citep{sochman:05,brubaker:07,lefakis:10,reyzin:11,xu:14,cai:15,speedboost}, so that at test-time, one computes the predictors iteratively and then reports the partial ensemble result as the intermediate or anytime results. Indeed, the first anytime predictor of this work follows this idea of combining weak predictors in a generalized linear prediction setting, and utilizes submodular optimization results~\citep{kemp} to bound the performance of the predictions. Furthermore, we prove a limitation of any anytime algorithm that stems from an ensemble of weak predictors, proving that in general such an ensemble of cost $B$ can only achieve comparable rewards of the optimal ensemble of cost $B/4$. 
 
-The limitation of ensemble approaches is also manifested in practice by the current neural networks, where one often finds an ensemble of a shallow neural networks to perform worse than a single deep one. 
-This leads us to consider an alternative approach to anytime prediction, where we train a single model to produce multiple intermediate results for anytime predictions, and we optimize all the anytime results jointly. To this end, we develop an adaptive training technique for this multi-objective optimization and achieve competitive practical anytime predictions within neural networks. Interestingly, we prove that combining anytime predictors instead of regular predictors can circumvent the above-mentioned theoretical limitation of ensemble approaches. 
+Such limitations lead us to consider an alternative approach to anytime prediction, where we train a single model to produce multiple intermediate results for anytime predictions, and we optimize all the anytime results jointly. 
+Viewing anytime prediction as a multi-objective optimization, we develop an adaptive method to balance the weights of the objectives, and improve anytime prediction quality on multiple neural networks and data-sets. 
+By exploiting anytime neural networks as weak learners, we can form ensembles of anytime predictors for anytime prediction, and interestingly, by making weak learners to be anytime predictors, we can circumvent the previous theoretical limitation on ensemble-based anytime predictors.
 
-For the train-time trade-off between computation and accuracy, we specifically target problems that are often accompanied by our anytime predictors. Since anytime models often stem from ensembles of weaker models that are trained sequentially, they can be difficult to scale to large data-sets, especially on data-sets that may be expensive to loop through. To address this weakness we develop gradient boosting algorithms for stochastic data streams, so that we can train all weak learners jointly. Gradient boosting can be considered as approximated gradient descent in the functional space and we utilize theoretical results from convex optimization to analyze it. We apply theoretical analysis from online learning to analyze the algorithms under stochastic data streams. Combining these two theoretical analysis, we bound the regrets of the proposed algorithm, showing that it achieves no regret in prediction losses against any competitor under strongly convex losses and under the assumption that each weak online learner can predict better than random by a margin.
+For the train-time trade-off between computation and accuracy, we specifically target problems that are often accompanied by our anytime predictors. Since anytime models often stem from ensembles of weaker models that are trained sequentially, they can be difficult to scale to large data-sets, especially on data-sets that may be expensive to loop through. To address this weakness, we develop gradient boosting algorithms for stochastic data streams so that we can train all weak learners jointly. Gradient boosting can be considered as approximated gradient descent in the functional space, and can be analyzed via gradient descent~\citep{hazan2007logarithmic,grubb2011generalized}. Combining gradient boosting with analysis from online learning~\citep{beygelzimer2015optimal,cesa2004generalization}, we analyze the proposed algorithms under stochastic data streams. We bound the regrets of the proposed algorithm, showing that it achieves no regret in prediction losses against any competitor under strongly convex losses and under the assumption that each weak online learner can predict better than random by a margin.
 
-We also address the increased complexity of hyper parameters in the specific setting of neural architecture search, where one seeks the optimal architecture given a data-set and an optimization objective. We expand existing models iteratively, guided by gradient boosting. Each step of the model expansion is determined by fitting potential short-cut connections against the gradient of the loss with respect to intermediate layers. 
-We also draw attention to the resemblance between the problem of neural architecture search and learning anytime linear predictors, since both  solve a bi-level optimization of a discrete variable representing the network architecture or feature choices, and a continuous variable presenting neural network parameters or linear prediction coefficients. 
+We also address the increased complexity of hyper parameters in the specific setting of neural architecture search~\citep{nas,Elsken2018NeuralAS}, where one seeks the optimal architecture given a data-set and an optimization objective. We first formulate the problem as a bi-level optimization and show its connections to the earlier anytime linear prediction problem. 
+Inspired by forward selection approach in the linear prediction setting, we propose to expand existing neural networks models iteratively guided by gradient boosting. 
+Each step of the model expansion is determined by fitting potential short-cut connections against the gradient of the loss with respect to intermediate layers. 
 
 In summary, the thesis statement of this work is as follows. 
 \begin{quotation}
 %This work meows a lot but achieves no fish. 
 \textbf{Thesis Statement:} 
-Modern machine learning applications often have to address the trade-off between computational costs and predictive powers. At test-time, the computational budget is often limited, and it may be agnostic during training or vary during test. Furthermore, thanks to the increased amount of data storage and parallel computation, the training cost of models is increasing rapidly to thousands of GPU-days. In this work, we address this trade-off between computational speed and prediction accuracy at both test-time and training-time, providing theoretical performance guarantees and practical experimental results. More specifically, we address the test-time trade-off by advancing anytime predictions, where we classify the achievable outcome and limitation of forming anytime predictors via ensemble methods, and then develop practical methods to break the theoretical limitation by training anytime predictions jointly in a single neural network model. Furthermore, we address the increasing training cost of models utilizing online learning theory to handle stochastic data streams and leveraging gradient boosting to guide the search in a space of complex hyper-parameters such as neural network architectures. 
+Modern machine learning applications often have to address the trade-off between computational costs and predictive powers. 
+%At test-time, the computational budget is often limited, and it may be agnostic during training or vary during test. Furthermore, thanks to the increased amount of data storage and parallel computation, the training cost of models is increasing rapidly to thousands of GPU-days. 
+This work addresses the trade-off between computational speed and prediction accuracy at both test-time and training-time, providing theoretical performance guarantees and practical experimental results. 
+Specifically, for dynamically trading speed and accuracy at test-time, we leverage cost-greedy methods to achieve near-optimal anytime linear predictions, and we 
+also prove anytime performance upper bound on such ensemble-based methods in general. 
+However, utilizing multi-objective optimization,
+we show such upper bound can be avoided via ensemble of anytime weak learners.
+To address the rising problem of training computation, we propose to adapt ensemble methods to stochastic data-streams. 
+Furthermore, we draw connection between anytime prediction and neural architecture search, 
+and develop practical algorithms to expand network architectures iteratively in order to explore the vast space of networks efficiently during training. 
 \end{quotation}
-
-
-
-\section{Related Works}
-\label{sec:related_works}
-
-There are a wide array of approaches to balance between the computational costs and prediction losses of predictors. We detail a number of examples as follows.
-
-
-\textbf{Budgeted Prediction.}
-
-\textbf{Feature Selection and Sparse Optimization.}
-
-\textbf{Model Compression.}
-
-\textbf{Neural networks with auxiliary predictions.}
-
-\textbf{Online learning.} 
-
-\textbf{Architecture search.}
-
 
 
 \section{Overview of Chapters and Their Contributions}

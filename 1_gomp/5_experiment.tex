@@ -1,4 +1,4 @@
-\section{EXPERIMENTS}
+\section{Experiments}
 \label{sec:experiment}
 
 \begin{table*}
@@ -116,7 +116,7 @@ on \Grain\, and \YahooLTR.}
 \label{fig:run_time}
 \end{figure}
 
-\subsection{DATA-SETS AND SET-UP}
+\subsection{Data-sets and Set-ups}
 We experiment our methods for anytime linear prediction on two real-world data-sets,
 each of which has a significant number of feature groups with associated costs. 
 
@@ -135,7 +135,7 @@ We choose regularizer $\lambda = 10^{-7}$. The data-set is
 split into five 100k sets, and the remaining 10k are used for validation. We report the cross validation results on the five 100K sets as the test results. The initial risk is $R(\emptyset) = 0.091$.}
 \end{itemize}
 
-\subsection{EVALUATION METRIC, BASELINE AND ORACLE}
+\subsection{Evaluation Metric and Approximated Oracle}
 \label{sec:timeliness}
 \begin{figure}[ht!]
 \centering
@@ -183,14 +183,14 @@ $\lambda$ to obtain lasso paths. We call this baseline algorithm \textbf{Sparse}
 SPAMS (SPArse Modeling Software \citep{spams}), to solve the optimization.}.
 
 
-\subsection{FEATURE COST}
+\subsection{Importance of Feature Cost}
 Our proposed CS-G-OMP differs from Group Orthogonal Matching Pursuit (G-OMP) \citep{gomp} in that G-OMP does not consider feature costs when evaluating features. We show that this difference is crucial for anytime linear prediction. In Figure~\ref{fig:cost_vs_no_cost}, we compare the objective vs. costs curves of CS-G-OMP and G-OMP that are stopped at 0.97-stopping cost on \YahooLTR. As expected, CS-G-OMP achieves a
 better overall prediction at every budget, qualitatively demonstrating the importance of incorporating feature costs. Table~\ref{tab:grain_auc} and Table~\ref{tab:yahoo_auc} 
 quantify this effect, showing that CS-G-OMP 
 achieves a better timeliness
 measure than regular G-OMP. 
 
-\subsection{GROUP WHITENING}
+\subsection{Group Whitening}
 %Compare different normalization methods: whiten the whole data, 
 %zero mean normalize, whiten each group. \and 
 We provide experimental evidence that  
@@ -218,7 +218,7 @@ This behavior is expected from data-sets whose feature groups contain correlated
 \end{figure}
 
 
-\subsection{SELECTION CRITERION VARIANTS}
+\subsection{Other Selection Criteria Variants}
 \label{sec:selection_methods}
 %FR vs OMP; group vs single
 

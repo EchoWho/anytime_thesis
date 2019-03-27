@@ -1,8 +1,8 @@
-\section{COMPUTATION-AWARE GREEDY METHOD}
+\section{Computation-Aware Greedy Methods}
 \label{sec:gomp_method}
 
 
-\subsection{PRELIMINARIES}
+\subsection{Preliminaries}
 Before introducing our greedy methods for forming cost-efficient anytime predictors, 
 we first formally state our assumptions and define some terminology.
 
@@ -44,7 +44,7 @@ overload notations of a sequence $S$ so that $S$ also represents
 the set of features contained in the union of $s_1, s_2, ...,$ in notations such as $F(S)$, $w(S)$, $C_S$ and $b_S^S$, 
 where we need the selected features in $S$ for evaluation and the ordering does not affect the computation.
 
-\subsection{ANYTIME LINEAR PREDICTION at TEST-TIME}
+\subsection{Anytime Prediction at Test-time}
 
 \begin{algorithm}[tb]
 \caption{Anytime Linear Prediction at Test-time}
@@ -74,7 +74,7 @@ At interruption or termination of the feature computation, we report the latest 
 Hence, to produce anytime linear predictions, we need to learn a sequencing of the features groups.
 
 
-\subsection{COMPUTATION-AWARE GROUP ORTHOGONAL MATCHING PURSUIT (CS-G-OMP)}
+\subsection{Computation-Aware Group Orthogonal Matching Pursuit(CS-G-OMP)}
 
 
 \begin{algorithm}[tb]
@@ -154,7 +154,8 @@ We will show in experiments that no-whiten and single
 are indeed inferior to our CS-G-OMP choice. 
 
 
-\subsection{COMPUTATION-AWARE GROUP FORWARD REGRESSION (CS-G-FR)} 
+\subsection{Computation-Aware Group Forward Regression (CS-G-FR)}
+
 The learning procedure extending from Forward Regression is similar to
 Algorithm~\ref{algo:gomp_lm}, as stated in Algorithm~\ref{algo:gfr_lm}: we compute the linear models 
 $w(G_{j-1} \oplus g)$ at line 4 instead of the 

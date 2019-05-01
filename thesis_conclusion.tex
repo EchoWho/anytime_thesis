@@ -1,0 +1,103 @@
+
+
+
+\section{Discussion and Future Works}
+
+
+
+\subsection{Dynamic Models with Data-Dependent Computational Graphs}
+In this work, we only consider anytime predictors to have a sequential computational graph, where
+a fixed sequence of computation is used for generating anytime results for all data samples.
+However, it is also possible to form anytime predictions via computational graphs that depend 
+on the input data samples, so that intermediate computation not only provides valid early predictions, but also determines
+the computational graph of the subsequent procedure.
+For instance, decision trees are natural anytime predictors with branching structures: we can 
+stop the tree early, and the predict using the deepest tree node visited. 
+
+A number of existing works already considered dynamic models for balancing test-time computation and accuracy. 
+~\citep{timeliness}
+approach the feature sequencing problem in anytime linear prediction by formulating it as a Markov
+decision process, and the partial results using computed features also determine which next features
+are computed. ~\citep{xu:13a} train a tree of classifiers to determine the order to compute features.
+~\citep{wang2017skipnet} train neural networks to dynamically skip a number of layers based on early features.
+~\citep{outrageouslylarge} train a large number of networks and use a controller network to determine 
+for each data sample which networks are activated. 
+
+However, most of these existing works apply the dynamic models to the budgeted prediction problem, i.e., 
+they minimize the average test computation, subject to not degrading prediction quality much. As a result,
+each data sample has a fixed early-exit, after which no improvement to the prediction on this sample is made.
+Particularly, it remains to be considered how to design dynamic neural networks for anytime predictions, i.e.,
+each sample is predicted with an anytime neural network that is dynamically selected based on the sample itself.
+
+
+\subsection{Game Theoretical Approach to Training Anytime Predictors}
+
+In Chapter~\ref{chapter:ann}, we formulated training anytime neural networks as a multi-objective problem,
+and we approach it by optimizing the anytime losses in an adaptively weighted sum. 
+An interesting alternative approach is to consider the problem as a game, where an adversary chooses 
+the computational budget where the interruption occurs, and the learner is to ensure that at all budgets it
+is nearly at the best it can do. For instance, we may measure the performance at each budget with the relative
+increase in error rate in comparison to a model that specifically trained for that budget. Then the adversary
+maximizes over the budgets to increase this relative error rate, and the learner is to minimize the maximum 
+relative increment. 
+
+One challenge to this approach, however, is to determine the objective function. The relative, instead of absolute, 
+performance against an expert at each budget is necessary, because if otherwise, the problem may be overwhelmed by the 
+different scales of the objectives at different budgets. However, computing this relative performance gap may require 
+one to train many experts at various budgets. It will be interesting to consider how many experts we really need
+to compute, or whether there are formulations to avoid them. 
+
+
+\subsection{Determine When to Grow Models in Anytime Learning}
+When a prediction model seems to not perform well, it can be the result of ill-optimized parameters, or it can be 
+because the model architecture is not suitable for the problem. 
+To address the former issue, one needs to optimize the model further, whereas against the latter issue, one needs to 
+modify the architecture itself. It will be interesting to have a principled way to determine which 
+action is the right one. 
+
+In Chapter~\ref{chapter:nas}, we studied anytime learning via neural architecture search, where we addressed the above
+problem in an ad-hoc manner. We trained each model with a small number of fixed epochs and then attempt to grow its architecture. 
+In the visual recognition problem that we considered, 
+these small number of epochs are often enough to tell apart performances of the different models. However, in general
+problem, we do not have a principled way to determine whether we have enough optimization on the existing models. 
+
+
+
+
+
+
+
+
+\section{Conclusion}
+
+In this thesis we consider the trade-off between computation and accuracy for predictors at 
+both testing and training time. 
+We approach the balance between these two opposing factors with anytime algorithms, which 
+always prepare valid partial results in case of budget depletion and 
+produce better results if extra computation is given. Such approach is taken because it
+can automatically adjust to and utilize any agnostic budget limit. 
+
+We start off with anytime linear predictors, for which we show that cost-aware greedy methods
+can achieve near-optimal predictions uniformly. However, we also discovered that by combining 
+multiple weak predictors, such as features in linear prediction, ensemble-based anytime predictors
+have a a limitation in how well it can do in comparison to the optimal. Specifically, we establish
+a bi-criteria lower and upper bound for anytime predictors, showing that they can and only can compete
+against the optimal combination that has a lower cost than them.
+
+This discovery dictates that anytime predictors need to look beyond ensemble methods, and thus,
+we develop anytime neural networks, where anytime predictions are trained jointly as a multi-objective
+problem within a single predictor. 
+We also show that by combining anytime predictors instead of regular predictors, one can 
+improve the bi-criteria bound. This indicates that the future of anytime prediction may
+rely on a combination of the traditional ensemble approaches and creative anytime models designs.
+
+
+We also address the concern with training efficiency in multiple ways. For large stochastic data streams,
+we developed streaming gradient boosting, so that this traditionally iteratively trained model
+can be trained on a data stream. For the large search space of neural architecture design, we 
+draw a connection between feature selection and neural architecture search, and develop an iterative
+growth algorithm that is inspired by gradient boosting, which we previously leveraged for anytime prediction. 
+This suggests that anytime prediction and anytime learning are inherently connected, and they may be 
+studied together in the future. 
+
+

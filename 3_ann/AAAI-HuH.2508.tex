@@ -109,9 +109,17 @@ As models become more accurate and computationally expensive, it becomes more di
 Some applications also desire multiple trade-offs between computation and accuracy, because they have computational budgets that may vary at test time. E.g., web servers for facial recognition or spam filtering may have higher load during the afternoon than at midnight.  Autonomous vehicles need faster object detection when moving rapidly than when it is stationary.  Furthermore, real-time and latency sensitive applications may desire fast predictions on easy samples and slow but accurate predictions on difficult ones. 
 \begin{figure}
     \centering
-    \includegraphics[width=0.85\linewidth, keepaspectratio]{\ANNDIR/adaloss_small_vs_const_large.png}
-    \caption{The common \ann training strategy increases final errors from the optimal (green vs. blue), which decreases exponentially slowly. By learning to focus more on the final auxiliary losses, the proposed adaptive loss weights make a small \ann (orange) to outperform a large one (green) that has non-adaptive weights. }
-    \label{fig:sieve_small_vs_const_large}
+    \subfloat[]{
+    \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/adaloss_small_vs_const_large.png}
+	\label{fig:sieve_small_vs_const_large}    
+    }
+    ~
+    \subfloat[]{
+    \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/ann.png}
+    \label{fig:ann}
+    }
+    \caption{(a) The common \ann training strategy increases final errors from the optimal (green vs. blue), which decreases exponentially slowly. By learning to focus more on the final auxiliary losses, the proposed adaptive loss weights make a small \ann (orange) to outperform a large one (green) that has non-adaptive weights. 
+    (b) Anytime neural networks contain auxiliary predictions and losses, $\hat{y}_i$ and $\ell_i$, for intermediate feature unit $f_i$.}
 \end{figure}
 
 An \textbf{anytime predictor}~\cite{horvitz:1987,boddydean,anytime,speedboost,msdense} can automatically trade off between computation and accuracy. For each test sample, an anytime predictor produces a fast and crude initial prediction and continues to refine it as budget allows, so that at any test-time budget, the anytime predictor has a valid result for the sample, and the more budget is spent, the better the prediction. 
@@ -119,13 +127,6 @@ Anytime predictors are different from cascaded predictors~\cite{cascade,xu:14,ca
 
 
 
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.85\linewidth, keepaspectratio]{\ANNDIR/ann.png}
-    \caption{Anytime neural networks contain auxiliary predictions and losses, $\hat{y}_i$ and $\ell_i$, for intermediate feature unit $f_i$.  }
-    \label{fig:ann}
-\end{figure}
 
 This work studies how to convert well-known DNN architectures to produce competitive anytime predictions.  
 We form anytime neural networks (\anns) by appending auxiliary predictions and losses to DNNs, as we will detail in Sec.~\ref{sec:ann} and Fig.~\ref{fig:ann}. Inference-time prediction then can be stopped at the latest prediction layer that is within the budget. Note that this work deals with the case where it is \textbf{not known apriori} where the interrupt during inference time will occur. 
@@ -226,18 +227,19 @@ where $B_i$ is the weight of the loss $\ell_i$. We call the choices of $B_i$ \te
 
 \begin{figure}
     \centering
-        \includegraphics[width=0.80\linewidth, keepaspectratio]{\ANNDIR/loss_cifar100.png}
-    \caption{Relative Percentage Increase in Training Loss vs. depths (lower is better). \const scheme is increasingly worse than the optimal at deep layers. \adaloss performs about equally well on all layers in comparison to the OPT.}
-    \label{fig:loss_cifar100}
+    \subfloat[]{
+        \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/loss_cifar100.png}
+        \label{fig:loss_cifar100}
+    }
+    ~
+    \subfloat[]{
+	    \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/EANN.png} \label{fig:eann}
+	}
+    \caption{(a) Relative Percentage Increase in Training Loss vs. depths (lower is better). \const scheme is increasingly worse than the optimal at deep layers. \adaloss performs about equally well on all layers in comparison to the OPT.
+    (b)Ensemble of exponentially deepening anytime neural network (EANN) computes its \anns in order of their depths. An anytime result is used if it is better than all previous ones on a validation set (layers in light blue). }
+    
 \end{figure}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.75\linewidth, keepaspectratio]{\ANNDIR/EANN.png}
-    \caption{ Ensemble of exponentially deepening anytime neural network (EANN) computes its \anns in order of their depths. An anytime result is used if it is better than all previous ones on a validation set (layers in light blue).} 
-     \label{fig:eann}
-\end{figure}
-    %}    
     
 %%%%%%%%%%%%%%
 
@@ -398,7 +400,7 @@ We evaluate the weights on multiple models including ResNet~\cite{resnet} and De
 
 
 
-\begin{figure*}[ht!]
+\begin{figure}[h]
     \centering
     
     \subfloat[Res\anns on CIFAR10]{
@@ -410,39 +412,54 @@ We evaluate the weights on multiple models including ResNet~\cite{resnet} and De
         \includegraphics[width=0.44\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_cifar100.png}
         \label{fig:adaloss_vs_const_of_double_cost_cifar100}
     }
-    
+    \caption{Comparing small networks with \adaloss versus big ones using \const on CIFAR10 and CIFAR100. }
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+        
     \subfloat[Res\anns on SVHN]{
         \includegraphics[width=0.44\linewidth, keepaspectratio ]{\ANNDIR/adaloss_vs_const_of_double_cost_svhn.png}
         \label{fig:adaloss_vs_const_of_double_cost_svhn}
     }
-    ~
+	\caption{Comparing small networks with \adaloss versus big ones using \const on SVHN. }    
+\end{figure}
+    
+
+\begin{figure}[h]
+    \centering
+        
     \subfloat[Res\anns on ILSVRC]{
         \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_adaloss_vs_const_resnet.png}
         \label{fig:ilsvrc_adaloss_vs_const_of_double_cost}
     }
-    
+    ~
     \subfloat[MSDNet on ILSVRC]{
         \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_adaloss_vs_const_msdnet.png}
         \label{fig:ilsvrc_adaloss_vs_const_of_double_cost_msdnet}    
     }
-    ~
+    \caption{Comparing small networks with \adaloss versus big ones using \const on ILSVRC with Res\anns and MSDNet. }    
+\end{figure}
+
+\begin{figure}[h]
+\centering
+
     \subfloat[\anns comparison on ILSVRC]{
-        \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_compare_models.png}
+        \includegraphics[width=0.6\linewidth, keepaspectratio]{\ANNDIR/ilsvrc_compare_models.png}
         \label{fig:ilsvrc_compare_models}    
     }
+	\caption{\anns performance are mostly decided by underlying models, but \adaloss is beneficial regardless models.   } 
+\end{figure}
     
-    \caption{\textbf{(a-e)} Comparing small networks with \adaloss versus big ones using \const. With \adaloss, 
-    the small networks achieve the same accuracy levels faster than large networks with \const. 
-    \textbf{(f)} \anns performance are mostly decided by underlying models, but \adaloss is beneficial regardless models. }
-    \label{fig:adaloss_vs_const_of_double_cost}
-\end{figure*}
+
+
 \textbf{\adaloss vs. \const on the same models.} Table~\ref{tab:compare_f} presents the average relative test error rate increase from OPT on 12  Res\anns on CIFAR10, CIFAR100 and SVHN\footnote{The 12 models are named by $(n,c)$ drawn from $\{ 7, 9, 13, 17, 25 \} \times \{ 16, 32 \}$ and $\{(9,64), (9,128)\}$, where $n$ represents the number of residual units in each of the three blocks of the network, and $c$ is the filter size of the first convolution.}. As training an OPT for each depth is too expensive, we instead report the average relative comparison at 1/4, 1/2, 3/4, and 1 of the total \ann costs. 
 We observe that the \const scheme makes $15\sim 18\%$ more errors than the OPT, and the relative gap widens at later layers.  The \linear scheme also has about 13\% relative gap in later layers. In contrast, \adaloss enjoys small performance gaps in the later half of layers. 
 On ILSVRC, we compare \adaloss against \const on Res\annnp50, Dense\annnp169, and MSDNet38, which have similar final errors and total computational costs (See Fig.~\ref{fig:ilsvrc_compare_models}). In Table~\ref{tab:compare_f_ilsvrc}, we observe the trade-offs between early and late accuracy on Res\annnp50 and MSDNet38. Furthermore, Dense\annnp169 performs \emph{uniformly} better with \adaloss than with \const. 
 Since comparing the weight schemes requires evaluating \anns at multiple budget limits, and \adaloss and \const outperform each other at a significant fraction of depths on most of our experiments, we consider the two schemes \emph{incomparable on the same model}. 
 %However, our next experiments will show late predictions to be vastly more important than the early ones.
 
-\begin{figure*}[t]
+\begin{figure}[t]
     \centering
     \subfloat[EANNs on CIFAR100]{
         \includegraphics[width=0.44\linewidth, keepaspectratio]{\ANNDIR/cifar100_adaloss_eann_b2.png}
@@ -463,7 +480,7 @@ Since comparing the weight schemes requires evaluating \anns at multiple budget 
     \textbf{(c)} The learned adaptive weights of the same model on three data-sets.
     }
     %AANN-14 finishes at 33.50\% error,
-\end{figure*}
+\end{figure}
 
 
 \textbf{Small networks with \adaloss vs. large ones with \const.} 

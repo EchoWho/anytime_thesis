@@ -1,0 +1,143 @@
+\section{Anytime Prediction}
+
+We formally introduce anytime prediction in this section, since most of this work is 
+based on this idea. Anytime predictors output valid results if they are interrupted at any point during testing. 
+Furthermore, the results improve with more resources spent.
+Such idea of partial computation is exploited by many algorithms, not just for prediction. 
+For instance, bisection method for finding square root of a real number is an example where the longer
+the computation, the more precise the approximation becomes. 
+
+Formally, we consider anytime prediction as a multi-objective optimization problem. 
+An anytime predictor $\hat{y}$ takes an input $x$, and produces a sequence of partial results until an agnostic
+interruption happens. Let the parameters of the predictor be $\theta$
+We denote $\hat{y}_t(x; \theta)$ to be the the latest prediction at computational budget limit $t \in \mathbb{R}$.
+Let $y$ be the target prediction, and the loss function be $\ell$. 
+Then the predictor at time $t$ suffers the expected loss
+$\ell_t(\theta) := \mathbb{E}_{x, y \sim D} \ell(\hat{y}_t(x ; \theta), y)$, where $D$ is the stochastic distribution of the data. 
+Then an ideal anytime predictor simultaneously optimizes the expectation $\ell_t$ for all $t\in \mathbb{R}$, i.e., finding the 
+optimal $\theta^*$ that is simultaneously optimal for all budgets t, 
+\begin{align}
+ \theta^* \in \cap _{t \in \mathbb{R}} \{ \theta' : \theta' = \arg \min _{\theta} \ell _t(\theta) \}.
+ \label{eq:anytime_general}
+\end{align}
+
+The multi-objective optimization in Eq.~\ref{eq:anytime_general} often cannot be solved, 
+because not only there are infinitely many objectives $\ell_t$, but also these objectives
+are in general in conflict with each other.
+Hence, varies approximation have to be made for optimizing for Eq.~\ref{eq:anytime_general}. 
+One common approximation is to only consider $\ell_t$ if a new prediction becomes available at $t$, i.e., 
+\begin{align}
+ \theta^* \in \cap _{t \in A} \{ \theta' : \theta' = \arg \min _{\theta} \ell _t(\theta) \},
+ \label{eq:anytime_general_discrete}
+\end{align}
+where $A$ is the set of time where $\hat{y}$ makes new predictions. 
+This is often used in practice, because we often know roughly which $t$ to focus on and design the 
+predictor to output at those locations specifically. 
+However, by only focusing on the budgets where
+new predictions are made, this approximation can overestimate its performance at other time budgets.
+An extreme example is to focus only on the final prediction and produce no early results, i.e., 
+a non-anytime predictor.
+In fact, in both Chapter~\ref{chapter:anytime_linear} and Chapter~\ref{chapter:ann} we apply this 
+approximation first, and then convert the solutions for the general budgets $t \in \mathbb{R}$. 
+
+The multi-objective minimization in Eq.~\ref{eq:anytime_general_discrete} is also more special than general
+multi-objective problems, since the predictions happen in the order of computation. Hence, beside
+typical multi-objective approaches such as weighted sum and game-theoretical min-max optimization, 
+one can instead add complexity to the anytime predictor iteratively, and each addition triggers a new
+prediction. This approach is appealing and is often used in anytime prediction literature, because 
+it replaces the difficult multi-objective problem with an iterative optimization problem. Furthermore, 
+the theoretical analysis on the iterations can often be translated to performance at all budgets at which
+the predictions are made. 
+
+
+\section{Related Works to the Trade-off Between Computation and Accuracy}
+
+There are a wide array of works that address the trade-off between computation and accuracy. 
+Here we provide a brief summary of these approaches to establish a background for this work.
+
+\subsection{Anytime Prediction}
+There are many ways to generate anytime predictions within predictors.
+Some predictors innately have structures or procedures that can provide anytime predictions. 
+For instance, a decision tree can naturally provide exit the prediction at any depth. 
+In stacked recurrent models or iterative
+inference procedures, one can stop early without finishing all iterations.
+In feed-forward neural networks, auxiliary predictors that leverage
+early feature layers can be trained to produce early predictions. 
+In fact, as deep neural networks (DNNs) have become the backbone of many modern machine learning applications,
+many works have studied DNNs with auxiliary predictors. 
+\cite{supervisednet,inception_v4,pspnet,fractalnet} use auxiliary prediction to regularize the networks for faster and better convergence. 
+\cite{curriculum,feedbacknet} set the auxiliary predictions from easy to hard for curriculum learning. 
+\cite{hed,reverse_scene_seg} make pixel level predictions in images, and find learning early predictions in coarse scales also improve the fine resolution predictions. \cite{msdense} shows the crucial importance of maintaining multi-scale features for high quality early classifications. 
+
+ 
+Anytime predictors can also be built iteratively from weak predictors. 
+In \citep{weinberger09feature,xu:12,xu:13b}, feature manipulations such as polynomials on the existing features 
+are iteratively tried and selected to add to the overall linear predictor.
+\citep{reyzin:11} train a boosted ensemble of weak learners, and then at test-time, sample the weak learners
+to run according to their weights in the ensemble. 
+\citep{speedboost} adjust gradient boosting to account for computational costs of weak learners during weak learner 
+selection, and compute the weak learners sequentially during test-time to update the outputs. 
+
+
+%\cite{timeliness,rl_anytime} form Markov Decision Processes for computation of weak predictors and features, and learn policies to order them.
+%\subsection{Trade-off during Training}
+
+\subsection{Model Compression}
+A wide range of works improve the trade-off between computation and accuracy by compressing the model.
+
+The most rudimentary form of model compression is perhaps the feature selection in linear prediction, where 
+one seeks the most important features of the model. There are two 
+typical approaches to feature selection, sparse optimization and iterative selection (or elimination). 
+In sparse optimization, one optimizes the completely model while having some constraints or regularization 
+to induce sparsity in the selected features. $L1$-regularization, or Lasso~\citep{lasso} is typically used 
+for selecting individual feature dimensions. When there are feature groups, where grouped features are computed
+together, Group Lasso regularization~\citep{group_lasso} is often used. 
+The most common approaches to iterative approach is through greedy algorithms, which are classified by
+their greedy criteria. In particular, forward regression enumerates all possible selections and compute the 
+marginal change in the objectives. 
+Alternatively, Orthogonal Matching Pursuit~\citep{omp} and Least-angle Regression(LARS)~\citep{lars}
+can be considered as approximation to forward regression via gradient boosting: a feature is selected, if it is to best to
+represent the gradient of the loss with respect to the prediction. 
+
+
+Neural network compression has become a common problem due to the growing network sizes and the 
+limited GPU memory. \cite{prune_nn,slim_nn,huang2017condensenet} prune network weights and connections 
+based on their magnitudes.
+\cite{binary_nn,binary_nn_eccv,squeezenet} quantize weights within networks to reduce computation and memory footprint. 
+A closely related topic is knowledge distillation~\cite{deepreally,distillation},
+where the training target of the target network is replaced with the predicted logits of the source network.
+
+
+
+\subsection{Budgeted Prediction}
+We note that anytime prediction is related to but different from budgeted prediction,
+which aims to minimize \textbf{average test-time computational cost} without sacrificing average accuracy.
+Specifically, in anytime prediction, the budget $t$ determines the computational cost for all samples $x$, 
+whereas in budgeted prediction, the predictor has the freedom to choose when to exit for each sample $x$,
+provided the expected prediction accuracy meets some threshold, and the expected computational cost becomes a minimization
+objective. As a result, a budgeted predictor may not have early predictions for a particular data sample, and 
+the predictor can also exit early on the sample, so that the result on the sample is not improved if more computational budget
+is given. At the same time, an anytime predictor tries to optimize the result on the sample at multiple budget limits, 
+and this may leads to worse accuracy at a specific budget limit. Hence, we consider the two problems 
+orthogonal. 
+
+A typical approach to budgeted prediction is through cascaded predictors~\citep{cascade,sochman:05, brubaker:07, lefakis:10, xu:14, cai:15}, 
+where a sequence of predictions are trained along side with a policy that determines the exit point of each sample on the sequence. 
+As a result, data samples with easy decisions take early-exits, while the difficult decisions can take longer computation.
+Overall, this often results in a reduction in computation at a small increase of error rates. 
+Cascaded prediction can be also considered as a combination between anytime predictors and the early-exit policy. 
+
+Cascaded predictors and budgeted prediction has also been applied to neural networks. 
+\cite{wang2017skipnet,veit2017convolutional,adaptivenn} dynamically skip network computation based on samples, and the early-exit policies 
+are trained through reinforcement learning or iterative optimization. 
+
+
+
+%\textbf{Iterative Updates.}
+%Models that are trained with iterative updates naturally handle an agnostic amount of training time, and provide
+%partially trained models before training finishes. 
+
+%\subsection{Online Learning}
+
+
+%\subsection{Ensemble Methods}

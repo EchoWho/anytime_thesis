@@ -18,12 +18,20 @@
 %% $Id: elsarticle-template-1-num.tex 149 2009-10-08 05:01:15Z rishi $
 %% $URL: http://lenova.river-valley.com/svn/elsbst/trunk/elsarticle-template-1-num.tex $
 %%
-\documentclass[]{report}
-\usepackage[utf8]{inputenc}
-\frenchspacing 
-\setlength{\pdfpagewidth}{8.5in}
-\setlength{\pdfpageheight}{11in}
-\usepackage[margin=1.5in]{geometry}
+\documentclass[review,12pt]{cmuthesis}
+\usepackage{times}
+\usepackage{fullpage}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage[numbers,sort]{natbib}
+\usepackage[backref,pageanchor=true,plainpages=false, pdfpagelabels, bookmarks,bookmarksnumbered,
+%pdfborder=0 0 0,  %removes outlines around hyper links in online display
+]{hyperref}
+
+% Approximately 1" margins, more space on binding side
+%\usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar]{geometry}
+%for general printing (not binding)
+\usepackage[letterpaper,twoside,vscale=.8,hscale=.75,nomarginpar,hmarginratio=1:1]{geometry}
 
 %% Use the option review to obtain double line spacing
 %% \documentclass[preprint,review,12pt]{elsarticle}
@@ -229,11 +237,21 @@
 
 
 \title{
-{Thesis Title}\\
-{\large Institution Name}
+{Cost-Effective Predictions via\\ Anytime Prediction and Learning}\\
 }
-\author{Author Name}
-\date{Day Month Year}
+\author{
+Hanzhang Hu}
+\date{April 26th}
+\Year{2019}
+\trnumber{}
+
+\committee{
+J. Andrew Bagnell \\
+Martial Hebert \\
+Ruslan Salakhutdinov \\
+Rich Caruana}
+
+
 
 \begin{document}
 
@@ -242,37 +260,82 @@
 
 
 \chapter*{Abstract}
-This work considers the problem of
+When choosing machine learning algorithms, one often has to balance between two opposing factors, 
+the computational speed and the accuracy of predictors. 
+The trade-off during testing is often difficult to balance, 
+because the test-time computational budget may be agnostic
+at training, and the budget may vary during testing. 
+Analogously, given a novel data-set, one often lacks prior knowledge in the appropriate predictor complexity
+and training computation, and furthermore, may want to interrupt or prolong the training 
+based on training results. 
 
-\chapter*{Dedication}
-Dedication placeholder
+In this work, we address these trade-offs between computation and accuracy via \emph{anytime} prediction and 
+learning, which are algorithms that can be interrupted at any time and still produce valid solutions. 
+Furthermore, the quality of the results improves with the consumed computation before interruption. 
+With the versatility to adjust to any budget, anytime algorithms automatically
+ utilize any agnostic computational budget to the maximum extent.
 
-\chapter*{Declaration}
-Declaration placeholder
+To address the test-time trade-off, we study anytime predictors, whose prediction computation can be interrupted during testing. 
+We start with developing provably near-optimal anytime linear predictors, and derive a theoretical performance limitation
+for anytime predictors that are based on ensemble methods. Then we develop practical 
+anytime predictions within individual neural networks via multi-objective optimization. 
+Furthermore, leveraging these anytime predictors as weak learners, we circumvent the
+performance limitation on ensemble-based anytime predictors.
 
-\chapter*{Acknowledgements}
-I want to thank...
-
-\section*{Co-authors}
-Alexander Grubb, Wen Sun, Arun Venkatraman, Debadeepta Dey, John Langford, 
-
-\section*{Advisor/Mentors}
- Martial Hebert, J. Andrew Bagnell, Rich Caruana 
-
-\section*{Others}
-Lynetta Miller for scheduling me to meet with Martial as regular as physically possible, and finding us the room for defense.
-
+For the train-time trade-off, we consider the neural architecture search problem, where
+one seeks the optimal neural network structure for a data-set. We draw a parallel between this bi-level 
+combinatorial optimization problem and the feature selection problem for linear prediction, 
+and develop an iterative network growth algorithm that is inspired by a forward selection algorithm. 
+We also consider the problem of training on large data-sets, and develop 
+no-regret gradient boosting algorithms for stochastic data streams.
 
 
-\section*{Acknowledgements} 
-This work was conducted in part through collaborative participation in the Robotics Consortium sponsored by the U.S Army Research Laboratory under the Collaborative Technology Alliance Program, Cooperative Agreement W911NF-10-2-0016. 
 
-\section*{Acknowledgements}
-This work was conducted in part through collaborative participation in the Robotics Consortium sponsored by the U.S Army Research  Laboratory  under  the  Collaborative  Technology  Alliance Program, Cooperative Agreement W911NF-10-2-0016. This work is also supported in part by National Science Foundation Graduate Research Fellowship Grant No. DGE-1252522.
-%The authors also thank Geoff Gordon for valuable discussions.
 
+
+\chapter*{Acknowledgements} 
+
+I would like to thank J. Andrew Bagnell, Martial Hebert, Ruslan Salakhutdinov, and Rich Caruana, for serving on my thesis committee.
+I appreciate them for setting aside time for me, and giving me invaluable discussions and suggestions. 
+
+I am happy to have been working with Drew and Martial for the past years. 
+They have given me countless help, despite of their busy schedules. 
+They gave me incredible freedom in exploring topics of my choice, 
+and were patient with me to allow me gradually formalize and mature the research ideas. 
+This experience of research and development has given me many invaluable lessons, and I am grateful to have 
+Drew and Martial to guide me through them, like lighthouses in a dark ocean. 
+
+I have been fortunate to have many collaborators over the years, in roughly chronological order,
+Daniel Munoz, Alexander Grubb, Allie Del Giorno, Wen Sun, Arun Venkatraman,  Debadeepta Dey, and John Langford. 
+They have taught me many things both in research and in life. Without their help, this work would not have
+come to be. I especially want to thank Dey for setting up my experiments on his computational resources, 
+and he has run thousands of my scripts over the two years. 
+
+\begin{itemize}
+\item Chapter~\ref{chapter:anytime_linear} is based on the Ph.D. thesis of Alexander Grubb, who made an 
+excellent introduction to gradient boosting and its application to anytime prediction for me. In fact the
+main contributions of this chapter are improvements of unpublished results of his thesis.
+\item Chapter~\ref{chapter:ann} involves a large number of experiments. Debadeepta Dey kindly offered his 
+computational resources in the middle of this project, and without his help on running thousands of
+scripts, this work will never come to fruition. 
+\item Chapter~\ref{chapter:sgb} came out of a paper reading session of the lab. The careful analysis of 
+Wen Sun and the amazing intuition of Drew led to our initial exploration of this topic. We later also extended
+previous work of Alexander Grubb on gradient boosting with non-smooth losses to enable streaming gradient 
+boosting to do so as well. 
+\item Chapter~\ref{chapter:nas} started as an internship project at Microsoft Research under the supervision 
+of Debadeepta Dey. Initially this project came out as a bag of engineer hacks that works somehow. 
+Thanks to the inputs from John Langford and Rich Caruana, we were able to steer the project into a more 
+motivated direction that happens to fit into this thesis nicely.
+\end{itemize}
+
+ 
 
 \tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
 
 %%
 %% Start line numbering here if you want
@@ -281,6 +344,11 @@ This work was conducted in part through collaborative participation in the Robot
 \chapter{Introduction}
 \label{chapter:thesis_introduction}
 \input{thesis_introduction.tex}
+
+\chapter{Preliminaries and Background}
+\label{chapter:background}
+\input{thesis_preliminaries.tex}
+
 
 \chapter{Anytime Linear Prediction via Feature Group Sequencing}
 \label{chapter:anytime_linear}
@@ -294,9 +362,15 @@ This work was conducted in part through collaborative participation in the Robot
 \label{chapter:sgb}
 \input{\SGBDIR/main.tex}
 
-\chapter{Growing Neural Networks via Gradient Boosting on Intermediate Layers}
+\chapter{Anytime Learning via Forward Architecture Search}
 \label{chapter:nas}
 \input{\NASDIR/main_conference.tex}
+
+
+\chapter{Discussion and Conclusion}
+\label{chapter:conclusion}
+\input{thesis_conclusion.tex}
+
 
 
 %% The Appendices part is started with the command \appendix;
@@ -315,8 +389,8 @@ This work was conducted in part through collaborative participation in the Robot
 %%   \citet{key}         ==>>  Author [#]
 
 %% References with bibTeX database:
-
-\bibliographystyle{natbib}
+\backmatter
+\bibliographystyle{plainnat}
 \bibliography{1_gomp/final.bib,2_sgb/AISTATS.bib,3_ann/AAAI-HuH.2508.bib,4_nas/network_search.bib}
 
 %% Authors are advised to submit their bibtex database files. They are

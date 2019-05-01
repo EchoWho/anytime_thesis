@@ -1,12 +1,14 @@
-\section{Introduction and Backgrounds}
+\section{Introduction}
 
-First defined by \cite{anytime}, anytime predictors output 
-valid results even if they are interrupted at any point in time. The results improve with resources spent. In this work, we propose an anytime linear prediction algorithm under the common 
-machine learning setting, where features are computed in groups with associated costs. We further assume that the cost of 
+
+In this work, we consider anytime predictions under the common 
+machine learning setting, where features are computed in groups with associated costs. 
+We further assume that the cost of 
 prediction is dominated by feature computation. Hence, 
 we can achieve anytime predictions by computing feature groups
 in a specific order and outputting linear predictions 
 using only computed features at interruption.
+
 
 Formally, we are given $n$ samples $(x^i, y^i)$ from 
 a feature matrix $X \in \mathbb{R}^{n \times D}$ and a response vector $Y \in \mathbb{R}^n$. We also have a partition of the

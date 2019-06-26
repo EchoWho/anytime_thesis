@@ -54,28 +54,31 @@
 \vfill
 \begin{center}
 {\Large \strut \@title\par}
-\vfill
-{\large \begin{tabular}[t]{c}\@author\end{tabular}\par}
-\vfill
-{\sc \@trnumber\par}
-\smallskip
+\vskip 2em
+{\Large \begin{tabular}[t]{c}\@author\end{tabular}\par}
+\vskip 2em
 {\large \@date\par}
+\smallskip
+{\large \@trnumber\par}
 \end{center}
 \vfill}
 \end{minipage}
 \end{center}
 
-\vskip 3em
+\vskip 5em
 
 \begin{center}
+{\large
+	Machine Learning Department \\
     School of Computer Science \\
     Carnegie Mellon University \\
-    Pittsburgh, PA 15213
+    Pittsburgh, PA 15213}
 \end{center}
-
+\vskip 3em
 \begin{center}
+{\large
     {\bf Thesis Committee:} \\
-    \@committee
+    \@committee}
 \end{center}
 \vspace{1em}
 \begin{center}

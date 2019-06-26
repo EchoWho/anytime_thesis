@@ -74,13 +74,13 @@ In this thesis we consider the trade-off between computation and accuracy for pr
 both testing and training time. 
 We approach the balance between these two opposing factors with anytime algorithms, which 
 always prepare valid partial results in case of budget depletion and 
-produce better results if extra computation is given. Such approach is taken because it
+produce better results if extra computation is given. Such a approach is taken because it
 can automatically adjust to and utilize any agnostic budget limit. 
 
 We start off with anytime linear predictors, for which we show that cost-aware greedy methods
 can achieve near-optimal predictions uniformly. However, we also discovered that by combining 
 multiple weak predictors, such as features in linear prediction, ensemble-based anytime predictors
-have a a limitation in how well it can do in comparison to the optimal. Specifically, we establish
+have a a limitation in how well they can do in comparison to the optimal. Specifically, we establish
 a bi-criteria lower and upper bound for anytime predictors, showing that they can and only can compete
 against the optimal combination that has a lower cost than them.
 
